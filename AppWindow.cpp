@@ -13,6 +13,7 @@
 
 AppWindow::AppWindow()
 {
+	m_world = std::make_unique<World>();
 }
 
 int deg = 0;
@@ -30,14 +31,14 @@ void AppWindow::render()
 	m_mat_list.clear();
 	m_mat_list.push_back(m_mat_0);
 
-	updateModel(Vector3D(25, -6, 10), Vector3D(0.3f, 0.3f, 0.3f), Quaternion::Euler(1, 0, 0), m_mat_list);
+	updateModel(Vector3D(25, -6, 10), Vector3D(0.3f, 0.3f, 0.3f), Quaternion::euler(1, 1, 0), m_mat_list);
 	drawMesh(m_mesh, m_mat_list);
 
 	m_mat_list.clear();
 	m_mat_list.push_back(m_mat_1);
 	deg++;
 
-	Quaternion q = Quaternion::Euler(deg, deg, deg);
+	Quaternion q = Quaternion::euler(deg, deg, deg);
 
 	updateModel(Vector3D(0, 10, 50), Vector3D(10.0f, 10.0f, 10.0f), q, m_mat_list);
 	drawMesh(m_mesh_1, m_mat_list);
@@ -45,7 +46,7 @@ void AppWindow::render()
 	m_mat_list.clear();
 	m_mat_list.push_back(m_mat_1);
 
-	updateModel(Vector3D(25, -5, 10), Vector3D(0.3f, 0.3f, 0.3f), Quaternion::Euler(0, 0, 0), m_mat_list);
+	updateModel(Vector3D(25, -5, 10), Vector3D(0.3f, 0.3f, 0.3f), Quaternion::euler(0, 0, 0), m_mat_list);
 	drawMesh(m_mesh_0, m_mat_list);
 
 	m_mat_list.clear();
@@ -53,21 +54,19 @@ void AppWindow::render()
 	m_mat_list.push_back(m_mat_brick);
 	m_mat_list.push_back(m_mat_win);
 	m_mat_list.push_back(m_mat_wood);
-	//updateModel(Vector3D(0, 0, 0), Vector3D(1.0f, 1.0f, 1.0f), m_mat_list);
-	//drawMesh(m_mesh_h, m_mat_list);
 
 	for (unsigned int i = 0; i < 3; i++)
 	{
 		for (unsigned int k = 0; k < 3; k++)
 		{
-			updateModel(Vector3D(-14.0f + 14.0f * i, -5, -14.0f + 14.0f * k), Vector3D(1.0f, 1.0f, 1.0f), Quaternion::Euler(0, 30 * 2 * k, 0), m_mat_list);
+			updateModel(Vector3D(-14.0f + 14.0f * i, -5, -14.0f + 14.0f * k), Vector3D(1.0f, 1.0f, 1.0f), Quaternion::euler(0, 30 * 2 * k, 0), m_mat_list);
 			drawMesh(m_mesh_h, m_mat_list);
 		}
 	}
 
 	m_mat_list.clear();
 	m_mat_list.push_back(m_mat_terr);
-	updateModel(Vector3D(0, -5, 0), Vector3D(1, 1, 1), Quaternion::Euler(0, 0, 0), m_mat_list);
+	updateModel(Vector3D(0, -5, 0), Vector3D(1, 1, 1), Quaternion::euler(0, 0, 0), m_mat_list);
 	drawMesh(m_mesh_terr, m_mat_list);
 
 	m_mat_list.clear();
@@ -76,14 +75,16 @@ void AppWindow::render()
 
 	m_swap_chain->present(true);
 
-	m_old_delta = m_new_delta;
-	m_new_delta = ::GetTickCount64();
+	auto currentTime = std::chrono::system_clock::now();
+	auto elapsed = std::chrono::duration<double>(); 
+	if (m_prev_time.time_since_epoch().count())
+		elapsed = currentTime - m_prev_time;
+	m_prev_time = currentTime;
+	m_delta_time = (float)elapsed.count();
 
-	m_delta_time = (m_old_delta) ? ((m_new_delta - m_old_delta) / 1000.0f) : 0;
 
-	std::cout << "FPS: " << (unsigned int)(1.0f / m_delta_time) << std::endl;
+	std::cout << "FPS: " << (1.00f / m_delta_time) << std::endl;
 
-	m_time += m_delta_time;
 }
 
 void AppWindow::update()
@@ -127,12 +128,16 @@ void AppWindow::updateModel(Vector3D pos, Vector3D scale, Quaternion rot, const 
 
 	Matrix4x4 m_light_rot_matrix;
 	m_light_rot_matrix.setIdentity();
+
 	m_light_rot_matrix.setRotationY(m_light_rot_y);
 
 	cc.m_world.setIdentity();
 	cc.m_world.setTranslation(pos);
-	
-	cc.m_world.Rotate(rot);
+	//Matrix4x4 temp;
+	//temp.setIdentity();
+	//temp.rotate(rot);
+	//cc.m_world *= temp;
+	cc.m_world.rotate(rot);
 	cc.m_view = m_view_cam;
 	cc.m_proj = m_proj_cam;
 	cc.m_camera_position = m_world_cam.getTranslation();
@@ -209,6 +214,11 @@ void AppWindow::updatePhisycs()
 {
 	PhysicsEngine::m_scene->simulate(1.0f / 60.0f);
 	PhysicsEngine::m_scene->fetchResults(true);
+}
+
+World* AppWindow::getWorld()
+{
+	return m_world.get();
 }
 
 void AppWindow::drawMesh(const MeshPtr& mesh, const std::vector<MaterialPtr>& mat_list)
@@ -303,6 +313,8 @@ void AppWindow::onCreate()
 	m_world_cam.setTranslation(Vector3D(0, 0, -2));
 
 	m_mat_list.resize(128);
+
+	m_entity = getWorld()->createEntity<Entity>();
 }
 
 void AppWindow::onUpdate()
@@ -310,6 +322,7 @@ void AppWindow::onUpdate()
 	Window::onUpdate();
 	InputSystem::get()->update();
 	this->render();
+	m_world->update();
 }
 
 void AppWindow::onDestroy()

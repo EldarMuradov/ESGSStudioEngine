@@ -10,8 +10,10 @@
 #include "PixelShader.h"
 #include "InputListener.h"
 #include "Matrix4x4.h"
+#include "World.h"
+#include <chrono>
 
-class AppWindow: public Window,public InputListener
+class AppWindow: public Window, public InputListener
 {
 public:
 	AppWindow();
@@ -43,6 +45,8 @@ public:
 	void updateSkyBox();
 	void updateLight();
 	void updatePhisycs();
+
+	World* getWorld();
 
 	void drawMesh(const MeshPtr& mesh, const std::vector<MaterialPtr>& mat_list);
 
@@ -85,8 +89,6 @@ private:
 	MeshPtr m_mesh_terr;
 
 private:
-	long m_old_delta;
-	long m_new_delta;
 	float m_delta_time;
 
 	float m_delta_pos;
@@ -102,7 +104,10 @@ private:
 	float m_forward = 0.0f;
 	float m_rightward = 0.0f;
 
+	Entity* m_entity = nullptr;
+
 	bool cull = true;
+
 	Matrix4x4 m_world_cam;
 	Matrix4x4 m_view_cam;
 	Matrix4x4 m_proj_cam;
@@ -114,10 +119,13 @@ private:
 	float m_time = 0.0f;
 	float m_light_radius = 4.0f;
 	float m_attenuation = 2.0f;
-	bool m_anim = false;
+
+	std::chrono::system_clock::time_point m_prev_time;
 
 	bool m_play_state = false;
 	bool m_fullscreen_state = false;
 
 	std::vector<MaterialPtr> m_mat_list;
+
+	std::unique_ptr<World> m_world;
 };
