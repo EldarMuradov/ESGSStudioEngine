@@ -14,6 +14,11 @@ protected:
 	
 	}
 
+	virtual void onUpdate() 
+	{
+	
+	}
+
 protected:
 	size_t m_type_id = 0;
 
