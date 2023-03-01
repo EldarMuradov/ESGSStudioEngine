@@ -7,7 +7,7 @@
 class World
 {
 public:
-	World();
+	World(GameScene* game);
 	~World();
 
 	template<typename T>
@@ -23,12 +23,22 @@ public:
 
 	void update();
 
+	GameScene* getGame();
+
+	const MaterialPtr& getSkyMat();
+
+	void setSkyTexture(const wchar_t* path);
+
 private:
 	void createEntityInternal(Entity* entity, size_t id);
 	void removeEntity(Entity* entity);
 private:
 	std::map<size_t, std::map<Entity*, std::unique_ptr<Entity>>> m_entities;
 	std::set<Entity*> m_entities_to_destroy;
+
+	GameScene* m_game = nullptr;
+
+	MaterialPtr m_sky_mat = nullptr;
 
 	friend class Entity;
 };

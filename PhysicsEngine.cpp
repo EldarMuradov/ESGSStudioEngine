@@ -16,8 +16,8 @@ PhysicsEngine::PhysicsEngine()
 		throw std::exception("Failed to create {PxFoundation}. Error in {PhysicsEngine} ctor.");
 	m_pvd = PxCreatePvd(*m_foundation);
 
-	//physx::PxPvdTransport* transport = physx::PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 100);
-	physx::PxPvdTransport* transport = physx::PxDefaultPvdFileTransportCreate("E:\\ESGS Studio Engine\\PVD\\pvd.pvd");
+	physx::PxPvdTransport* transport = physx::PxDefaultPvdSocketTransportCreate("127.0.0.1", 5425, 100);
+	//physx::PxPvdTransport* transport = physx::PxDefaultPvdFileTransportCreate("E:\\ESGS Studio Engine\\PVD\\pvd.pvd");
 	if (transport == NULL)
 		throw std::exception("Failed to create {PxPvdTransport}. Error in {PhysicsEngine} ctor.");
 
@@ -87,5 +87,5 @@ PhysicsEngine::~PhysicsEngine()
 	m_pvd->disconnect();
 	m_pvd->release();
 	m_physics->release();
-	PhysicsEngine::m_engine = nullptr;
+	PhysicsEngine::m_engine = NULL;
 }

@@ -1,14 +1,18 @@
 #pragma once
+
 #include <memory>
 #include "Vector3D.h"
 #include "Vector4D.h"
-#include "Quaternion.h"
 
 class Matrix4x4
 {
 public:
 	Matrix4x4()
 	{
+		m_mat[0][0] = 1;
+		m_mat[1][1] = 1;
+		m_mat[2][2] = 1;
+		m_mat[3][3] = 1;
 	}
 
 	void setIdentity()
@@ -74,35 +78,6 @@ public:
 		m_mat[0][1] = sin(rotation.m_z);
 		m_mat[1][0] = -sin(rotation.m_z);
 		m_mat[1][1] = cos(rotation.m_z);
-	}
-
-	void Rotate(Quaternion q)
-	{
-		// Precalculate coordinate products
-		float x = q.m_x * 2.0;
-		float y = q.m_y * 2.0;
-		float z = q.m_z * 2.0;
-		float xx = q.m_x * x;
-		float yy = q.m_y * y;
-		float zz = q.m_z * z;
-		float xy = q.m_x * y;
-		float xz = q.m_x * z;
-		float yz = q.m_y * z;
-		float wx = q.m_w * x;
-		float wy = q.m_w * y;
-		float wz = q.m_w * z;
-
-		// Calculate 3x3 matrix from orthonormal basis
-		m_mat[0][0] = 1.0f - (yy + zz); 
-		m_mat[1][0] = xy + wz;
-		m_mat[2][0] = xz - wy;
-		m_mat[0][1] = xy - wz;
-		m_mat[1][1] = 1.0f - (xx + zz);
-		m_mat[2][1] = yz + wx;
-		m_mat[0][2] = xz + wy;
-		m_mat[1][2] = yz - wx;
-		m_mat[2][2] = 1.0f - (xx + yy);
-		m_mat[3][3] = 1.0f;
 	}
 
 	float getDeterminant()

@@ -33,6 +33,12 @@ void Material::addTexture(const TexturePtr& texture)
 	m_textures.push_back(texture);
 }
 
+void Material::setSingleTexture(const TexturePtr& texture)
+{
+	m_textures.clear();
+	m_textures.push_back(texture);
+}
+
 void Material::removeTexture(unsigned int index)
 {
 	if (index >= this->m_textures.size())

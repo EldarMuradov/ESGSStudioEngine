@@ -22,9 +22,11 @@ Mesh::Mesh(const wchar_t* full_path): Resource(full_path)
 
 	bool res = tinyobj::LoadObj(&attribs, &shapes, &materials, &warn, &err, inputfile.c_str(), mtldir.c_str());
 
-	if (!err.empty()) throw std::exception("Mesh not created successfully");
+	if (!err.empty()) 
+		throw std::exception("Failed to create {Mesh}. Error in ctor.");
 
-	if (!res) throw std::exception("Mesh not created successfully");
+	if (!res) 
+		throw std::exception("Failed to create {Mesh}. Error in ctor.");
 
 	std::vector<VertexMesh> list_vertices;
 	std::vector<unsigned int> list_indices;

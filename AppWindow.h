@@ -11,7 +11,9 @@
 #include "InputListener.h"
 #include "Matrix4x4.h"
 #include "World.h"
+#include "GameScene.h"
 #include <chrono>
+#include "Quaternion.h"
 
 class AppWindow: public Window, public InputListener
 {
@@ -40,53 +42,32 @@ public:
 	void render();
 	void update();
 	void updateModel(Vector3D pos, Vector3D scale, Vector3D rot, const std::vector<MaterialPtr>& mat_list);
+	void updateEntityModel(CTransform* transform, const std::vector<MaterialPtr>& mat_list);
 	void updateModel(Vector3D pos, Vector3D scale, Quaternion rot, const std::vector<MaterialPtr>& mat_list);
 	void updateCamera();
 	void updateSkyBox();
 	void updateLight();
 	void updatePhisycs();
+	void renderObj(Entity* entity);
+	void renderObj(const MeshPtr& mesh, Vector3D pos, Vector3D scale, Quaternion rot, const std::vector<MaterialPtr>& mat_list);
 
 	World* getWorld();
 
 	void drawMesh(const MeshPtr& mesh, const std::vector<MaterialPtr>& mat_list);
 
+public:
+	const MaterialPtr& getSkyMaterial();
+
 private:
 	SwapChainPtr m_swap_chain;
 
-	VertexShaderPtr m_vs;
-
-	PixelShaderPtr m_ps;
 	PixelShaderPtr m_sky_ps;
 
-	ConstantBufferPtr m_cb;
 	ConstantBufferPtr m_sky_cb;
 
-	TexturePtr m_tex_terr;
-	TexturePtr m_tex_barrel;
-	TexturePtr m_tex_brick;
-	TexturePtr m_tex_win;
-	TexturePtr m_tex_wood;
-	TexturePtr m_tex;
-	TexturePtr m_tex_0;
-	TexturePtr m_tex_1;
-	TexturePtr m_sky_tex;
-
-	MaterialPtr m_mat_barrel;
-	MaterialPtr m_mat_brick;
-	MaterialPtr m_mat_win;
-	MaterialPtr m_mat_wood;
-	MaterialPtr m_mat_0;
-	MaterialPtr m_mat_1;
-	MaterialPtr m_mat;
-	MaterialPtr m_mat_terr;
-	MaterialPtr m_sky_mat;
-
-	MeshPtr m_mesh_h;
-	MeshPtr m_mesh;
-	MeshPtr m_mesh_0;
-	MeshPtr m_mesh_1;
 	MeshPtr m_sky_mesh;
-	MeshPtr m_mesh_terr;
+
+	MaterialPtr m_sky_mat;
 
 private:
 	float m_delta_time;
@@ -104,13 +85,13 @@ private:
 	float m_forward = 0.0f;
 	float m_rightward = 0.0f;
 
-	Entity* m_entity = nullptr;
-
 	bool cull = true;
 
 	Matrix4x4 m_world_cam;
 	Matrix4x4 m_view_cam;
 	Matrix4x4 m_proj_cam;
+
+	GameScene* m_scene = nullptr;
 
 	Vector3D m_cam_rot;
 
@@ -128,4 +109,6 @@ private:
 	std::vector<MaterialPtr> m_mat_list;
 
 	std::unique_ptr<World> m_world;
+
+	friend class GameScene;
 };

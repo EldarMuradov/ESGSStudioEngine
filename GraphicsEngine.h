@@ -5,6 +5,7 @@
 #include "TextureManager.h"
 #include "MeshManager.h"
 #include "Material.h"
+#include <set>
 
 class GraphicsEngine
 {
@@ -19,9 +20,14 @@ public:
 
 	MaterialPtr createMaterial(const wchar_t* vs_path, const wchar_t* ps_path);
 	MaterialPtr createMaterial(const MaterialPtr& material);
+	MaterialPtr createMaterial();
+	MaterialPtr createSkyMaterial(const wchar_t* vs_path, const wchar_t* ps_path);
 
 	void setMaterial(const MaterialPtr& material);
 	void getVertexMeshLayoutShaderByteCodeAndSize(void** byte_code, size_t* size);
+
+	void addComponent(Component* comp);
+	void removeComponent(Component* comp);
 
 public:
 	static GraphicsEngine* get();
@@ -36,4 +42,8 @@ private:
 
 	unsigned char m_mesh_layout_byte_code[1024];
 	size_t m_mesh_layout_size = 0;
+
+	std::set<CMesh*> m_meshes;
+
+	friend class AppWindow;
 };

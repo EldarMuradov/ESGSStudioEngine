@@ -1,6 +1,8 @@
 #pragma once
 #include "Vector3D.h"
 #include <cmath>
+#include "Matrix4x4.h"
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
 
 class Quaternion 
 {
@@ -35,6 +37,11 @@ public:
 		m_y = q.m_y;
 		m_z = q.m_z;
 		m_w = q.m_w;
+	}
+
+	Quaternion inverse(Quaternion q)
+	{
+		return Quaternion(-q.m_x, -q.m_y, -q.m_z, q.m_w);
 	}
 
 	static Quaternion identity() 
@@ -107,13 +114,13 @@ public:
 
 	float angle(const Quaternion& a)
 	{
-		float d = min(abs(dot(a)), 1.0f);
+		float d = MIN(abs(dot(a)), 1.0f);
 		return isEqualUsingDot(d) ? 0.0f : acos(d) * 2.0f * m_rad2deg;
 	}
 
-	Vector3D internalMakePositive(Vector3D euler)
+	static Vector3D internalMakePositive(Vector3D euler)
 	{
-		float negativeFlip = -0.0001f * m_rad2deg;
+		float negativeFlip = -0.0001f * 57.29578f;
 		float positiveFlip = 360.0f + negativeFlip;
 
 		if (euler.m_x < negativeFlip)
@@ -139,7 +146,7 @@ public:
 		float ang = angle(to);
 		if (ang == 0.0f) 
 			return to;
-		return slerp(to, min(1.0f, maxDegreesDelta / ang));
+		return slerp(to, MIN(1.0f, maxDegreesDelta / ang));
 	}
 
 	void setLookRotation(Vector3D view)
@@ -254,7 +261,7 @@ public:
 		return quaternion;
 	}
 
-	static Quaternion EulerToQuaternion(Vector3D someEulerAngles)
+	static Quaternion eulerToQuaternion(Vector3D someEulerAngles)
 	{
 		float cX = (cos(someEulerAngles.m_x / 2.0f));
 		float sX = (sin(someEulerAngles.m_x / 2.0f));
@@ -273,26 +280,97 @@ public:
 		return q;
 	}
 
-	static Quaternion Euler(Vector3D euler) 
+	static Quaternion euler(Vector3D euler) 
 	{ 
-		return FromEulerRad(euler * 0.01745329251f);
+		return fromEulerRad(euler * 0.01745329251f);
 	}
 
-	static Quaternion Euler(float x, float y, float z)
+	Quaternion normalizeSafe(Quaternion q)
 	{
-		return FromEulerRad(Vector3D(x, y, z) * 0.01745329251f);
+		float mag = magnitude(q);
+		if (mag < 0.00001f)
+			return Quaternion::identity();
+		else
+			return q / mag;
 	}
 
-	static Quaternion  FromEulerRad(Vector3D euler) 
+	float magnitude(Quaternion q)
 	{
-		return EulerToQuaternion(euler);
+		return sqrt(sqrMagnitude(q));
 	}
+
+	float sqrMagnitude(Quaternion q)
+	{
+		return q.dot(q);
+	}
+
+	static Quaternion euler(float x, float y, float z)
+	{
+		return fromEulerRad(Vector3D(x, y, z) * 0.01745329251f);
+	}
+
+	static Quaternion  fromEulerRad(Vector3D euler) 
+	{
+		return eulerToQuaternion(euler);
+	}
+
+	//static Vector3D quaternionToEuler(Quaternion quat)
+	//{
+	//	Matrix4x4 mat;
+	//	mat.setIdentity();
+
+	//	Vector3D rot;
+	//	mat.rotate(quat);
+	//	rot = matrixToEuler(mat);
+	//	return rot;
+	//}
+
+	//Vector3D toEulerRad(Quaternion rotation)
+	//{
+	//	Quaternion outRotation = rotation.normalizeSafe(rotation);
+	//	return quaternionToEuler(outRotation);
+	//}
+
+	//static Vector3D matrixToEuler(const Matrix4x4& matrix)
+	//{
+	//	Vector3D v;
+	//	if (matrix.m_mat[1][2] < 0.999f) // some fudge for imprecision
+	//	{
+	//		if (matrix.m_mat[1][2] > -0.999f) // some fudge for imprecision
+	//		{
+	//			v.m_x = asin(-matrix.m_mat[1][2]);
+	//			v.m_y = atan2(matrix.m_mat[0][2], matrix.m_mat[2][2]);
+	//			v.m_z = atan2(matrix.m_mat[1][0], matrix.m_mat[1][1]);
+	//			v = internalMakePositive(v);
+	//		}
+	//		else
+	//		{
+	//			// WARNING.  Not unique.  YA - ZA = atan2(r01,r00)
+	//			v.m_x = 3.1415926535f * 0.5f;
+	//			v.m_y = atan2(matrix.m_mat[0][1], matrix.m_mat[0][0]);
+	//			v.m_z = 0.0f;
+	//			v = internalMakePositive(v);
+	//		}
+	//	}
+	//	else
+	//	{
+	//		// WARNING.  Not unique.  YA + ZA = atan2(-r01,r00)
+	//		v.m_x = -3.1415926535f * 0.5f;
+	//		v.m_y = atan2(-matrix.m_mat[0][1], matrix.m_mat[0][0]);
+	//		v.m_z = 0.0f;
+	//		v = internalMakePositive(v);
+	//	}
+	//	return v;
+	//}
 
 public:
-	//Don't update unless you doesn't know quaternial math
+	//Don't update unless you don't know quaternial math
 	float m_x;
+	//Don't update unless you don't know quaternial math
 	float m_y;
+	//Don't update unless you don't know quaternial math
 	float m_z;
+	//Don't update unless you don't know quaternial math
 	float m_w;
 
 private:

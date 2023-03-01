@@ -46,7 +46,7 @@ public:
 	void normalize()
 	{
 		float mag = magnitude();
-		if (mag > m_epsilon)
+		if (mag > 0.00001f)
 		{
 			m_x /= mag;
 			m_y /= mag;
@@ -63,18 +63,19 @@ public:
 	Vector3D normalize(Vector3D value)
 	{
 		float mag = value.magnitude();
-		if (mag > m_epsilon)
+		if (mag > 0.00001f)
 		{
-			m_x /= mag;
-			m_y /= mag;
-			m_z /= mag;
+			value.m_x /= mag;
+			value.m_y /= mag;
+			value.m_z /= mag;
 		}
 		else
 		{
-			m_x = 0;
-			m_y = 0;
-			m_z = 0;
+			value.m_x = 0;
+			value.m_y = 0;
+			value.m_z = 0;
 		}
+		return Vector3D(value.m_x, value.m_y, value.m_z);
 	}
 
 	Vector3D operator *(float num)
@@ -100,8 +101,4 @@ public:
 	float m_x = 0;
 	float m_y = 0;
 	float m_z = 0;
-
-private:
-	const float m_epsilon = 0.00001f;
-	const float m_epsilonNormalSqrt = 1e-15F;
 };

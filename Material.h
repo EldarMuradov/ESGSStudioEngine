@@ -14,6 +14,7 @@ public:
 	Material(const MaterialPtr& material);
 
 	void addTexture(const TexturePtr& texture);
+	void setSingleTexture(const TexturePtr& texture);
 	void removeTexture(unsigned int index);
 	void clearTextures();
 	void setData(void* data, unsigned int size);

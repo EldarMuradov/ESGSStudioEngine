@@ -14,6 +14,9 @@ int main()
 	catch (...)
 	{
 		throw std::exception("Failed to create {GraphicsEngine} / {InputSystem} / {PhysicsEngine}. Erorr in {main()}.");
+		InputSystem::release();
+		GraphicsEngine::release();
+		PhysicsEngine::release();
 		return -1;
 	}
 

@@ -1,12 +1,16 @@
 #include "World.h"
 #include "Entity.h"
+#include "CMesh.h"
 
-World::World()
+World::World(GameScene* game)
 {
+	m_game = game;
 }
 
 World::~World()
 {
+	delete m_game;
+	m_game = nullptr;
 }
 
 void World::update()
@@ -24,6 +28,22 @@ void World::update()
 			ptr->onUpdate();
 		}
 	}
+}
+
+GameScene* World::getGame()
+{
+	return m_game;
+}
+
+const MaterialPtr& World::getSkyMat()
+{
+	return m_sky_mat;
+}
+
+void World::setSkyTexture(const wchar_t* path)
+{
+	TexturePtr tex = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(path);
+	m_game->m_level->getSkyMaterial()->setSingleTexture(tex);
 }
 
 void World::createEntityInternal(Entity* entity, size_t id)

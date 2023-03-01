@@ -2,6 +2,7 @@
 #include "RenderSystem.h"
 #include "DeviceContext.h"
 #include <exception>
+#include "CMesh.h"
 
 GraphicsEngine* GraphicsEngine::m_engine = nullptr;
 
@@ -41,7 +42,6 @@ GraphicsEngine::GraphicsEngine()
 	::memcpy(m_mesh_layout_byte_code, shader_byte_code, size_shader);
 	m_mesh_layout_size = size_shader;
 	m_render_system->releaseCompiledShader();
-
 }
 
 RenderSystem* GraphicsEngine::getRenderSystem()
@@ -55,6 +55,7 @@ MaterialPtr GraphicsEngine::createMaterial(const wchar_t* vs_path, const wchar_t
 	try
 	{
 		mat = std::make_shared<Material>(vs_path, ps_path);
+		mat->setCullMode(CULL_MODE_BACK);
 	}
 	catch (...)
 	{
@@ -70,6 +71,39 @@ MaterialPtr GraphicsEngine::createMaterial(const MaterialPtr& material)
 	try
 	{
 		mat = std::make_shared<Material>(material);
+		mat->setCullMode(CULL_MODE_BACK);
+	}
+	catch (...)
+	{
+		throw std::exception("Failed to create {Material}. Error in {GraphicsEngine::createMaterial(...)}.");
+	}
+	return mat;
+}
+
+MaterialPtr GraphicsEngine::createMaterial()
+{
+	MaterialPtr mat = nullptr;
+	try
+	{
+		MaterialPtr base = createMaterial(L"PointLightVertexShader.hlsl", L"PointLightPixelShader.hlsl");
+
+		mat = std::make_shared<Material>(base);
+		mat->setCullMode(CULL_MODE_BACK);
+	}
+	catch (...)
+	{
+		throw std::exception("Failed to create {Material}. Error in {GraphicsEngine::createMaterial(...)}.");
+	}
+	return mat;
+}
+
+MaterialPtr GraphicsEngine::createSkyMaterial(const wchar_t* vs_path, const wchar_t* ps_path)
+{
+	MaterialPtr mat = nullptr;
+	try
+	{
+		mat = std::make_shared<Material>(vs_path, ps_path);
+		mat->setCullMode(CULL_MODE_FRONT);
 	}
 	catch (...)
 	{
@@ -104,6 +138,18 @@ void GraphicsEngine::getVertexMeshLayoutShaderByteCodeAndSize(void** byte_code, 
 {
 	*byte_code = m_mesh_layout_byte_code;
 	*size = m_mesh_layout_size;
+}
+
+void GraphicsEngine::addComponent(Component* comp)
+{
+	if (auto c = dynamic_cast<CMesh*>(comp))
+		m_meshes.emplace(c);
+}
+
+void GraphicsEngine::removeComponent(Component* comp)
+{
+	if (auto c = dynamic_cast<CMesh*>(comp))
+		m_meshes.emplace(c);
 }
 
 void GraphicsEngine::create()

@@ -20,5 +20,6 @@ public:
 	}
 
 public:
-	int m_x = 0, m_y = 0;
+	int m_x = 0;
+	int m_y = 0;
 };

@@ -20,6 +20,11 @@ class Material;
 
 class Entity;
 class World;
+class Component;
+class GameScene;
+class AppWindow;
+class CTransform;
+class CMesh;
 
 typedef std::shared_ptr<SwapChain> SwapChainPtr;
 typedef std::shared_ptr<DeviceContext> DeviceContextPtr;
@@ -32,8 +37,3 @@ typedef std::shared_ptr<Resource> ResourcePtr;
 typedef std::shared_ptr<Texture> TexturePtr;
 typedef std::shared_ptr<Mesh> MeshPtr;
 typedef std::shared_ptr<Material> MaterialPtr;
-
-typedef unsigned int uint32;
-typedef int int32;
-typedef float float32;
-typedef double double64;

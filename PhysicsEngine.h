@@ -15,19 +15,19 @@ public:
 
 public:
 	static physx::PxScene* m_scene;
+	physx::PxPvd* m_pvd;
+
+	physx::PxFoundation* m_foundation;
+	physx::PxPhysics* m_physics;
 
 	physx::PxDefaultErrorCallback m_defaultErrorCallback;
 	physx::PxDefaultAllocator m_defaultAllocatorCallback;
 
 	physx::PxTolerancesScale m_toleranceScale;
 
-	physx::PxFoundation* m_foundation = NULL;
-	physx::PxPhysics* m_physics = NULL;
 	physx::PxDefaultCpuDispatcher* m_dispatcher = NULL;
 
 	physx::PxMaterial* m_material = NULL;
-
-	physx::PxPvd* m_pvd = NULL;
 
 private:
 	static PhysicsEngine* m_engine;

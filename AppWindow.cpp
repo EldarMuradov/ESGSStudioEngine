@@ -10,13 +10,18 @@
 #include "PhysicsEngine.h"
 #include <iostream>
 #include "Quaternion.h"
+#include "GameScene.h"
+#include "Rotator.h"
+#include "CMesh.h"
+#include "Entity.h"
+#include "CTransform.h"
 
 AppWindow::AppWindow()
 {
-	m_world = std::make_unique<World>();
+	m_scene = new GameScene();
+	m_scene->m_level = this;
+	m_world = std::make_unique<World>(m_scene);
 }
-
-int deg = 0;
 
 void AppWindow::render()
 {
@@ -25,49 +30,14 @@ void AppWindow::render()
 	RECT rc = this->getClientWindowRect();
 	GraphicsEngine::get()->getRenderSystem()->getImmediateDeviceContext()->setViewportSize(rc.right - rc.left, rc.bottom - rc.top);
 
-	//compute transform matrices
+	//compute global transform matrices
 	update();
 
-	m_mat_list.clear();
-	m_mat_list.push_back(m_mat_0);
-
-	updateModel(Vector3D(25, -6, 10), Vector3D(0.3f, 0.3f, 0.3f), Quaternion::euler(1, 1, 0), m_mat_list);
-	drawMesh(m_mesh, m_mat_list);
-
-	m_mat_list.clear();
-	m_mat_list.push_back(m_mat_1);
-	deg++;
-
-	Quaternion q = Quaternion::euler(deg, deg, deg);
-
-	updateModel(Vector3D(0, 10, 50), Vector3D(10.0f, 10.0f, 10.0f), q, m_mat_list);
-	drawMesh(m_mesh_1, m_mat_list);
-
-	m_mat_list.clear();
-	m_mat_list.push_back(m_mat_1);
-
-	updateModel(Vector3D(25, -5, 10), Vector3D(0.3f, 0.3f, 0.3f), Quaternion::euler(0, 0, 0), m_mat_list);
-	drawMesh(m_mesh_0, m_mat_list);
-
-	m_mat_list.clear();
-	m_mat_list.push_back(m_mat_barrel);
-	m_mat_list.push_back(m_mat_brick);
-	m_mat_list.push_back(m_mat_win);
-	m_mat_list.push_back(m_mat_wood);
-
-	for (unsigned int i = 0; i < 3; i++)
+	//update entity rendering
+	for (auto c : GraphicsEngine::get()->m_meshes)
 	{
-		for (unsigned int k = 0; k < 3; k++)
-		{
-			updateModel(Vector3D(-14.0f + 14.0f * i, -5, -14.0f + 14.0f * k), Vector3D(1.0f, 1.0f, 1.0f), Quaternion::euler(0, 30 * 2 * k, 0), m_mat_list);
-			drawMesh(m_mesh_h, m_mat_list);
-		}
+		renderObj(c->getEntity());
 	}
-
-	m_mat_list.clear();
-	m_mat_list.push_back(m_mat_terr);
-	updateModel(Vector3D(0, -5, 0), Vector3D(1, 1, 1), Quaternion::euler(0, 0, 0), m_mat_list);
-	drawMesh(m_mesh_terr, m_mat_list);
 
 	m_mat_list.clear();
 	m_mat_list.push_back(m_sky_mat);
@@ -82,9 +52,7 @@ void AppWindow::render()
 	m_prev_time = currentTime;
 	m_delta_time = (float)elapsed.count();
 
-
 	std::cout << "FPS: " << (1.00f / m_delta_time) << std::endl;
-
 }
 
 void AppWindow::update()
@@ -111,7 +79,6 @@ void AppWindow::updateModel(Vector3D pos, Vector3D scale, Vector3D rot, const st
 	cc.m_proj = m_proj_cam;
 	cc.m_camera_position = m_world_cam.getTranslation();
 
-
 	cc.m_light_position = m_light_position;
 
 	cc.m_light_radius = m_light_radius;
@@ -119,6 +86,31 @@ void AppWindow::updateModel(Vector3D pos, Vector3D scale, Vector3D rot, const st
 	cc.m_time = m_time;
 
 	for(size_t mat = 0; mat < mat_list.size(); mat++)
+		mat_list[mat]->setData(&cc, sizeof(constant));
+}
+
+void AppWindow::updateEntityModel(CTransform* transform, const std::vector<MaterialPtr>& mat_list)
+{
+	constant cc;
+
+	transform->getWorldMatrix(cc.m_world);
+
+    Matrix4x4 m_light_rot_matrix;
+	m_light_rot_matrix.setIdentity();
+
+	m_light_rot_matrix.setRotationY(m_light_rot_y);
+
+	cc.m_view = m_view_cam;
+	cc.m_proj = m_proj_cam;
+	cc.m_camera_position = m_world_cam.getTranslation();
+
+	cc.m_light_position = m_light_position;
+
+	cc.m_light_radius = m_light_radius;
+	cc.m_light_direction = m_light_rot_matrix.getZDirection();
+	cc.m_time = m_time;
+
+	for (size_t mat = 0; mat < mat_list.size(); mat++)
 		mat_list[mat]->setData(&cc, sizeof(constant));
 }
 
@@ -133,11 +125,8 @@ void AppWindow::updateModel(Vector3D pos, Vector3D scale, Quaternion rot, const 
 
 	cc.m_world.setIdentity();
 	cc.m_world.setTranslation(pos);
-	//Matrix4x4 temp;
-	//temp.setIdentity();
-	//temp.rotate(rot);
-	//cc.m_world *= temp;
-	cc.m_world.rotate(rot);
+
+	Rotator::rotate(cc.m_world, rot);
 	cc.m_view = m_view_cam;
 	cc.m_proj = m_proj_cam;
 	cc.m_camera_position = m_world_cam.getTranslation();
@@ -157,9 +146,6 @@ void AppWindow::updateCamera()
 {
 	Matrix4x4 world_cam, temp;
 	world_cam.setIdentity();
-
-	//Quaternion q = Quaternion::Euler(-m_rot_x * 100, -m_rot_y * 100, 0); 
-	//temp.Rotate(q);
 
 	temp.setIdentity();
 	temp.setRotationX(m_rot_x);
@@ -216,6 +202,21 @@ void AppWindow::updatePhisycs()
 	PhysicsEngine::m_scene->fetchResults(true);
 }
 
+void AppWindow::renderObj(Entity* entity)
+{
+	auto cmesh = entity->getComponent<CMesh>();
+	auto transform = entity->getComponent<CTransform>();
+	//updateModel(transform->getPosition(), transform->getScale(), transform->getRotation(), cmesh->getMaterials());
+	updateEntityModel(transform, cmesh->getMaterials());
+	drawMesh(cmesh->getMesh(), cmesh->getMaterials());
+}
+
+void AppWindow::renderObj(const MeshPtr& mesh, Vector3D pos, Vector3D scale, Quaternion rot, const std::vector<MaterialPtr>& mat_list)
+{
+	updateModel(pos, scale, rot, mat_list);
+	drawMesh(mesh, mat_list);
+}
+
 World* AppWindow::getWorld()
 {
 	return m_world.get();
@@ -239,6 +240,11 @@ void AppWindow::drawMesh(const MeshPtr& mesh, const std::vector<MaterialPtr>& ma
 	}
 }
 
+const MaterialPtr& AppWindow::getSkyMaterial()
+{
+	return m_sky_mat;
+}
+
 void AppWindow::onCreate()
 {
 	Window::onCreate();
@@ -248,79 +254,30 @@ void AppWindow::onCreate()
 	m_play_state = true;
 	InputSystem::get()->showCursor(false);
 
-	m_tex = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\wall.jpg");
-	m_tex_0 = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\beton.jpg");
-	m_tex_1 = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\woodfloor.jpeg");
+	m_scene->awake();
 
-	m_tex_terr = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\sand.jpg");
-
-	m_sky_tex = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\pinksky.png");
-
-	m_tex_barrel = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\barrel.jpg");
-	m_tex_brick = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\house_brick.jpg");
-	m_tex_wood = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\house_wood.jpg");
-	m_tex_win = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\house_windows.jpg");
-	
-	m_mesh_h = GraphicsEngine::get()->getMeshManager()->createMeshFromFile(L"Assets\\Meshes\\house.obj");
-	m_mesh_terr = GraphicsEngine::get()->getMeshManager()->createMeshFromFile(L"Assets\\Meshes\\terrain.obj");
 	m_sky_mesh = GraphicsEngine::get()->getMeshManager()->createMeshFromFile(L"Assets\\Meshes\\sphere.obj");
-
-	m_mesh = GraphicsEngine::get()->getMeshManager()->createMeshFromFile(L"Assets\\Meshes\\bulld.obj");
-	m_mesh_0 = GraphicsEngine::get()->getMeshManager()->createMeshFromFile(L"Assets\\Meshes\\heap.obj");
-	m_mesh_1 = GraphicsEngine::get()->getMeshManager()->createMeshFromFile(L"Assets\\Meshes\\room.obj");
 
 	RECT rc = this->getClientWindowRect();
 	m_swap_chain=GraphicsEngine::get()->getRenderSystem()->createSwapChain(this->m_hwnd, rc.right - rc.left, rc.bottom - rc.top);
 
 	m_world_cam.setTranslation(Vector3D(0, 0, -1));
 
-	m_mat = GraphicsEngine::get()->createMaterial(L"PointLightVertexShader.hlsl", L"PointLightPixelShader.hlsl");
-	m_mat->addTexture(m_tex);
-	m_mat->setCullMode(CULL_MODE_BACK);
-
-	m_mat_0 = GraphicsEngine::get()->createMaterial(m_mat);
-	m_mat_0->addTexture(m_tex_0);
-	m_mat_0->setCullMode(CULL_MODE_BACK);
-
-	m_mat_1 = GraphicsEngine::get()->createMaterial(m_mat);
-	m_mat_1->addTexture(m_tex_1);
-	m_mat_1->setCullMode(CULL_MODE_BACK);
-
-	m_mat_terr = GraphicsEngine::get()->createMaterial(m_mat);
-	m_mat_terr->addTexture(m_tex_terr);
-	m_mat_terr->setCullMode(CULL_MODE_BACK);
-
-	m_mat_barrel = GraphicsEngine::get()->createMaterial(m_mat);
-	m_mat_barrel->addTexture(m_tex_barrel);
-	m_mat_barrel->setCullMode(CULL_MODE_BACK);
-
-	m_mat_brick = GraphicsEngine::get()->createMaterial(m_mat);
-	m_mat_brick->addTexture(m_tex_brick);
-	m_mat_brick->setCullMode(CULL_MODE_BACK);
-
-	m_mat_win = GraphicsEngine::get()->createMaterial(m_mat);
-	m_mat_win->addTexture(m_tex_win);
-	m_mat_win->setCullMode(CULL_MODE_BACK);
-
-	m_mat_wood = GraphicsEngine::get()->createMaterial(m_mat);
-	m_mat_wood->addTexture(m_tex_wood);
-	m_mat_wood->setCullMode(CULL_MODE_BACK);
-
-	m_sky_mat = GraphicsEngine::get()->createMaterial(L"SkyBoxVertexShader.hlsl", L"SkyBoxShader.hlsl");
-	m_sky_mat->addTexture(m_sky_tex);
-	m_sky_mat->setCullMode(CULL_MODE_FRONT);
+	m_sky_mat = GraphicsEngine::get()->createSkyMaterial(L"SkyBoxVertexShader.hlsl", L"SkyBoxShader.hlsl");
 
 	m_world_cam.setTranslation(Vector3D(0, 0, -2));
 
 	m_mat_list.resize(128);
 
-	m_entity = getWorld()->createEntity<Entity>();
+	m_scene->start();
 }
 
 void AppWindow::onUpdate()
 {
 	Window::onUpdate();
 	InputSystem::get()->update();
+
+	m_scene->update();
 	this->render();
 	m_world->update();
 }
