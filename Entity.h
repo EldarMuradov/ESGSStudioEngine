@@ -3,6 +3,7 @@
 #include <map>
 #include "Component.h"
 #include "ESGSStudioEngine.h"
+#include "InputSystem.h"
 
 class Entity
 {
@@ -13,6 +14,8 @@ public:
 
 	World* getWorld();
 	CTransform* getTransform();
+
+	InputSystem* getInputSystem();
 
 	template<typename T>
 	T* createComponent()

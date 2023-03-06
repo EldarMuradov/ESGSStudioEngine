@@ -15,6 +15,10 @@
 #include "CMesh.h"
 #include "Entity.h"
 #include "CTransform.h"
+#include "CCamera.h"
+
+float AppWindow::m_delta_time = 0;
+Vector2D AppWindow::m_rect = Vector2D();
 
 AppWindow::AppWindow()
 {
@@ -30,6 +34,8 @@ void AppWindow::render()
 	RECT rc = this->getClientWindowRect();
 	GraphicsEngine::get()->getRenderSystem()->getImmediateDeviceContext()->setViewportSize(rc.right - rc.left, rc.bottom - rc.top);
 
+	m_rect = Vector2D(rc.right - rc.left, rc.bottom - rc.top);
+
 	//compute global transform matrices
 	update();
 
@@ -37,6 +43,11 @@ void AppWindow::render()
 	for (auto c : GraphicsEngine::get()->m_meshes)
 	{
 		renderObj(c->getEntity());
+	}
+
+	for (auto c : GraphicsEngine::get()->m_cameras)
+	{
+		updateCamera(c, rc);
 	}
 
 	m_mat_list.clear();
@@ -52,12 +63,11 @@ void AppWindow::render()
 	m_prev_time = currentTime;
 	m_delta_time = (float)elapsed.count();
 
-	std::cout << "FPS: " << (1.00f / m_delta_time) << std::endl;
+	std::cout << "FPS: " << (float)(1.00f / (m_delta_time)) << std::endl;
 }
 
 void AppWindow::update()
 {
-	updateCamera();
 	updateSkyBox();
 	updateLight();
 	updatePhisycs();
@@ -142,7 +152,7 @@ void AppWindow::updateModel(Vector3D pos, Vector3D scale, Quaternion rot, const 
 		mat_list[mat]->setData(&cc, sizeof(constant));
 }
 
-void AppWindow::updateCamera()
+void AppWindow::updateCamera(CCamera* cam, const RECT& rc)
 {
 	Matrix4x4 world_cam, temp;
 	world_cam.setIdentity();
@@ -166,12 +176,15 @@ void AppWindow::updateCamera()
 
 	world_cam.inverse();
 
-	m_view_cam = world_cam;
+	//m_view_cam = world_cam;
 
 	int width = (this->getClientWindowRect().right - this->getClientWindowRect().left);
 	int height = (this->getClientWindowRect().bottom - this->getClientWindowRect().top);
-
-	m_proj_cam.setPerspectiveFovLH(1.57f, ((float)width / (float)height), 0.1f, 5000.0f);
+	cam->getViewMatrix(m_view_cam);
+	cam->getProjection(m_proj_cam);
+	cam->setScreenArea(rc);
+	
+	//m_proj_cam.setPerspectiveFovLH(1.57f, ((float)width / (float)height), 0.1f, 5000.0f);
 }
 
 void AppWindow::updateSkyBox()
@@ -238,6 +251,16 @@ void AppWindow::drawMesh(const MeshPtr& mesh, const std::vector<MaterialPtr>& ma
 		// draw the triangle
 		GraphicsEngine::get()->getRenderSystem()->getImmediateDeviceContext()->drawIndexedTriangleList(slot.num_indices, 0, slot.start_index);
 	}
+}
+
+Vector2D AppWindow::getRect()
+{
+	return m_rect;
+}
+
+float AppWindow::getDeltaTime()
+{
+	return m_delta_time;
 }
 
 const MaterialPtr& AppWindow::getSkyMaterial()
@@ -307,7 +330,7 @@ void AppWindow::onSize()
 
 void AppWindow::onKeyDown(int key)
 {
-	if (!m_play_state) return;
+	/*if (!m_play_state) return;
 
 	if (key == 'W')
 	{
@@ -336,12 +359,12 @@ void AppWindow::onKeyDown(int key)
 	else if (key == 'P')
 	{
 		m_light_radius += 1.0f * m_delta_time;
-	}
+	}*/
 }
 
 void AppWindow::onKeyUp(int key)
 {
-	m_forward = 0.0f;
+	/*m_forward = 0.0f;
 	m_rightward = 0.0f;
 
 	if (key == 'G')
@@ -355,12 +378,12 @@ void AppWindow::onKeyUp(int key)
 		RECT size_screen = this->getSizeScreen();
 	
 		m_swap_chain->setFullScreen(m_fullscreen_state, size_screen.right, size_screen.bottom);
-	}
+	}*/
 }
 
 void AppWindow::onMouseMove(const Point& mouse_pos)
 {
-	if (!m_play_state) 
+	/*if (!m_play_state)
 		return;
 
 	int width = (this->getClientWindowRect().right - this->getClientWindowRect().left);
@@ -369,7 +392,7 @@ void AppWindow::onMouseMove(const Point& mouse_pos)
 	m_rot_x += (mouse_pos.m_y - (height / 2.0f)) * m_delta_time * 0.1f;
 	m_rot_y += (mouse_pos.m_x - (width / 2.0f)) * m_delta_time * 0.1f;
 
-	InputSystem::get()->setCursorPosition(Point((int)(width / 2.0f), (int)(height / 2.0f)));
+	InputSystem::get()->setCursorPosition(Point((int)(width / 2.0f), (int)(height / 2.0f)));*/
 }
 
 void AppWindow::onLeftMouseDown(const Point& mouse_pos)

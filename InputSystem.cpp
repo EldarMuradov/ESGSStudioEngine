@@ -1,5 +1,6 @@
 #include "InputSystem.h"
 #include <Windows.h>
+#include "AppWindow.h"
 
 InputSystem* InputSystem::m_system = nullptr;
 
@@ -24,7 +25,11 @@ void InputSystem::update()
 
 		while (it != m_set_listeners.end())
 		{
+			m_mouse_pos = Vector2D((int)current_mouse_pos.x, (int)current_mouse_pos.y);
+
 			(*it)->onMouseMove(Point(current_mouse_pos.x, current_mouse_pos.y));
+			lockCursorInternal();
+
 			++it;
 		}
 	}
@@ -104,6 +109,16 @@ void InputSystem::showCursor(bool show)
 	::ShowCursor(show);
 }
 
+void InputSystem::lockCursor(bool lock)
+{
+	m_lock_cursor = lock;
+}
+
+Vector2D& InputSystem::getMousePosition()
+{
+	return m_mouse_pos;
+}
+
 InputSystem* InputSystem::get()
 {
 	return m_system;
@@ -121,6 +136,12 @@ void InputSystem::release()
 	if (!InputSystem::m_system) 
 		return;
 	delete InputSystem::m_system;
+}
+
+void InputSystem::lockCursorInternal()
+{
+	if (m_lock_cursor)
+		InputSystem::get()->setCursorPosition(Point((int)(AppWindow::getRect().m_x / 2.0f), (int)(AppWindow::getRect().m_y / 2.0f)));
 }
 
 InputSystem::~InputSystem()

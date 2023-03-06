@@ -1,6 +1,6 @@
 #pragma once
 
-//#include "Quaternion.h"
+#include "Quaternion.h"
 #include "World.h"
 #include "GameScene.h"
 #include "CTransform.h"
@@ -10,3 +10,8 @@
 #include "Material.h"
 #include "Mesh.h"
 #include "CMesh.h"
+#include "CCamera.h"
+#include "Vector2D.h"
+#include "Vector3D.h"
+#include "InputSystem.h"
+#include "GraphicsEngine.h"

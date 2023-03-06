@@ -87,5 +87,5 @@ PhysicsEngine::~PhysicsEngine()
 	m_pvd->disconnect();
 	m_pvd->release();
 	m_physics->release();
-	PhysicsEngine::m_engine = NULL;
+	//PhysicsEngine::m_engine = NULL;
 }

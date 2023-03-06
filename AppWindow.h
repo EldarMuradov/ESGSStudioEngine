@@ -14,6 +14,7 @@
 #include "GameScene.h"
 #include <chrono>
 #include "Quaternion.h"
+#include "Vector2D.h"
 
 class AppWindow: public Window, public InputListener
 {
@@ -44,7 +45,7 @@ public:
 	void updateModel(Vector3D pos, Vector3D scale, Vector3D rot, const std::vector<MaterialPtr>& mat_list);
 	void updateEntityModel(CTransform* transform, const std::vector<MaterialPtr>& mat_list);
 	void updateModel(Vector3D pos, Vector3D scale, Quaternion rot, const std::vector<MaterialPtr>& mat_list);
-	void updateCamera();
+	void updateCamera(CCamera* cam, const RECT& rc);
 	void updateSkyBox();
 	void updateLight();
 	void updatePhisycs();
@@ -54,6 +55,9 @@ public:
 	World* getWorld();
 
 	void drawMesh(const MeshPtr& mesh, const std::vector<MaterialPtr>& mat_list);
+
+	static Vector2D getRect();
+	static float getDeltaTime();
 
 public:
 	const MaterialPtr& getSkyMaterial();
@@ -70,7 +74,7 @@ private:
 	MaterialPtr m_sky_mat;
 
 private:
-	float m_delta_time;
+	static float m_delta_time;
 
 	float m_delta_pos;
 	float m_delta_scale;
@@ -94,6 +98,8 @@ private:
 	GameScene* m_scene = nullptr;
 
 	Vector3D m_cam_rot;
+
+	static Vector2D m_rect;
 
 	Vector4D m_light_position;
 

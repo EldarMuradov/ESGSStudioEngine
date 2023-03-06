@@ -27,6 +27,11 @@ CTransform* Entity::getTransform()
 	return m_transform;
 }
 
+InputSystem* Entity::getInputSystem()
+{
+	return InputSystem::get();
+}
+
 Component* Entity::getComponentInternal(size_t id)
 {
 	auto comp = m_components.find(id);

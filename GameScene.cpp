@@ -5,6 +5,7 @@
 #include "World.h"
 #include "Quaternion.h"
 #include "ESGSStudioEngine.h"
+#include "PlayerController.h"
 
 GameScene::GameScene()
 {
@@ -25,6 +26,10 @@ Entity* entity_box = nullptr;
 
 void GameScene::start()
 {
+	auto player = m_level->getWorld()->createEntity<PlayerController>();
+
+	//InputSystem::get()->lockCursor(true);
+
 	m_level->getWorld()->setSkyTexture(L"Assets\\Textures\\pinksky.png");
 
 	//building 1

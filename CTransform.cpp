@@ -1,15 +1,13 @@
 #include "CTransform.h"
 #include "Quaternion.h"
 #include "Matrix4x4.h"
-
+#include "Vector2D.h"
 #include "Vector3D.h"
 #include "Prerequisites.h"
 #include "ESGSStudioEngine.h"
 
 CTransform::CTransform()
 {
-	m_position = Vector3D();
-	m_rotation = Quaternion();
 }
 
 CTransform::~CTransform()
@@ -32,6 +30,11 @@ Vector3D CTransform::getPosition()
 	return m_position;
 }
 
+void CTransform::setCamRotation(const Vector2D& rot)
+{
+	rotateCam(rot);
+}
+
 void CTransform::setRotation(const Quaternion& rot)
 {
 	m_rotation = rot;
@@ -41,6 +44,16 @@ void CTransform::setRotation(const Quaternion& rot)
 Quaternion CTransform::getRotation()
 {
 	return m_rotation;
+}
+
+void CTransform::setRotationY(float delta)
+{
+	m_matrix.setRotationY(delta);
+}
+
+void CTransform::setRotationX(float delta)
+{
+	m_matrix.setRotationX(delta);
 }
 
 void CTransform::setScale(const Vector3D& scale)
@@ -88,6 +101,12 @@ void CTransform::rotate(const Quaternion& q)
 	m_matrix.m_mat[3][3] = 1.0f;
 }
 
+void CTransform::rotateCam(const Vector2D& rot)
+{
+	m_euler_rotation = Vector3D(rot.m_x, rot.m_y, 0);
+	updateCamMatrix();
+}
+
 void CTransform::updateMatrix()
 {
 	Matrix4x4 temp;
@@ -97,6 +116,32 @@ void CTransform::updateMatrix()
 	//temp.setIdentity();
 	//temp.rotate(m_rotation);
 	rotate(m_rotation);
+
+	temp.setIdentity();
+	temp.setScale(m_scale);
+	m_matrix *= temp;
+
+	temp.setIdentity();
+	temp.setTranslation(m_position);
+	m_matrix *= temp;
+}
+
+void CTransform::updateCamMatrix()
+{
+	Matrix4x4 temp;
+
+	m_matrix.setIdentity();
+
+	temp.setIdentity();
+	temp.setRotationX(m_euler_rotation.m_x);
+	m_matrix *= temp;
+
+	temp.setIdentity();
+	temp.setRotationY(m_euler_rotation.m_y);
+	m_matrix *= temp;
+
+	//temp.rotate(m_rotation);
+	//rotate(m_rotation);
 
 	temp.setIdentity();
 	temp.setScale(m_scale);

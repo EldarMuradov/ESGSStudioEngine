@@ -44,6 +44,7 @@ private:
 	size_t m_mesh_layout_size = 0;
 
 	std::set<CMesh*> m_meshes;
+	std::set<CCamera*> m_cameras;
 
 	friend class AppWindow;
 };

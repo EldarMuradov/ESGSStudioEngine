@@ -3,6 +3,7 @@
 #include "DeviceContext.h"
 #include <exception>
 #include "CMesh.h"
+#include "CCamera.h"
 
 GraphicsEngine* GraphicsEngine::m_engine = nullptr;
 
@@ -144,12 +145,17 @@ void GraphicsEngine::addComponent(Component* comp)
 {
 	if (auto c = dynamic_cast<CMesh*>(comp))
 		m_meshes.emplace(c);
+	else if (auto c = dynamic_cast<CCamera*>(comp))
+		m_cameras.emplace(c);
 }
 
 void GraphicsEngine::removeComponent(Component* comp)
 {
 	if (auto c = dynamic_cast<CMesh*>(comp))
-		m_meshes.emplace(c);
+		m_meshes.erase(c);
+	else if (auto c = dynamic_cast<CCamera*>(comp))
+		if(!m_cameras.size())
+			m_cameras.erase(c);
 }
 
 void GraphicsEngine::create()
