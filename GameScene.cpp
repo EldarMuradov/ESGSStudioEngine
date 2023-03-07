@@ -28,9 +28,14 @@ void GameScene::start()
 {
 	auto player = m_level->getWorld()->createEntity<PlayerController>();
 
-	//InputSystem::get()->lockCursor(true);
-
 	m_level->getWorld()->setSkyTexture(L"Assets\\Textures\\pinksky.png");
+
+	//light
+	auto light_entity = m_level->getWorld()->createEntity<Entity>();
+	auto light = light_entity->createComponent<CLight>();
+	light->setColor(Vector4D(0.50f, 0.50f, 0.50f, 1));
+	light_entity->getTransform()->setRotationY(0.707f);
+	light_entity->getTransform()->setRotationX(-0.707f);
 
 	//building 1
 	auto mesh = GraphicsEngine::get()->getMeshManager()->createMeshFromFile(L"Assets\\Meshes\\bulld.obj");
@@ -89,7 +94,7 @@ void GameScene::start()
 
 	//terrain
 	auto mesh_terr = GraphicsEngine::get()->getMeshManager()->createMeshFromFile(L"Assets\\Meshes\\terrain.obj");
-	auto tex_terr = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\sand.jpg");
+	auto tex_terr = GraphicsEngine::get()->getTextureManager()->createTextureFromFile(L"Assets\\Textures\\tile.jpg");
 	auto material_terr = GraphicsEngine::get()->createMaterial();
 	material_terr->addTexture(tex_terr);
 

@@ -15,3 +15,5 @@
 #include "Vector3D.h"
 #include "InputSystem.h"
 #include "GraphicsEngine.h"
+#include "KeyCode.h"
+#include "CLight.h"

@@ -4,6 +4,7 @@
 #include <exception>
 #include "CMesh.h"
 #include "CCamera.h"
+#include "CLight.h"
 
 GraphicsEngine* GraphicsEngine::m_engine = nullptr;
 
@@ -86,7 +87,7 @@ MaterialPtr GraphicsEngine::createMaterial()
 	MaterialPtr mat = nullptr;
 	try
 	{
-		MaterialPtr base = createMaterial(L"PointLightVertexShader.hlsl", L"PointLightPixelShader.hlsl");
+		MaterialPtr base = createMaterial(L"DirectionalLightVertexShader.hlsl", L"DirectionalLightPixelShader.hlsl");
 
 		mat = std::make_shared<Material>(base);
 		mat->setCullMode(CULL_MODE_BACK);
@@ -146,7 +147,15 @@ void GraphicsEngine::addComponent(Component* comp)
 	if (auto c = dynamic_cast<CMesh*>(comp))
 		m_meshes.emplace(c);
 	else if (auto c = dynamic_cast<CCamera*>(comp))
-		m_cameras.emplace(c);
+	{
+		if(!m_cameras.size())
+			m_cameras.emplace(c);
+	}
+	else if (auto c = dynamic_cast<CLight*>(comp))
+	{
+		if (!m_lights.size())
+			m_lights.emplace(c);
+	}
 }
 
 void GraphicsEngine::removeComponent(Component* comp)
@@ -154,8 +163,9 @@ void GraphicsEngine::removeComponent(Component* comp)
 	if (auto c = dynamic_cast<CMesh*>(comp))
 		m_meshes.erase(c);
 	else if (auto c = dynamic_cast<CCamera*>(comp))
-		if(!m_cameras.size())
-			m_cameras.erase(c);
+		m_cameras.erase(c);
+	else if (auto c = dynamic_cast<CLight*>(comp))
+		m_lights.erase(c);
 }
 
 void GraphicsEngine::create()

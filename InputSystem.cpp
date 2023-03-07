@@ -1,6 +1,7 @@
 #include "InputSystem.h"
 #include <Windows.h>
 #include "AppWindow.h"
+#include "KeyCode.h"
 
 InputSystem* InputSystem::m_system = nullptr;
 
@@ -10,6 +11,9 @@ InputSystem::InputSystem()
 
 void InputSystem::update()
 {
+	key_up = 0;
+	key_down = 0;
+
 	POINT current_mouse_pos = {};
 	::GetCursorPos(&current_mouse_pos);
 
@@ -57,8 +61,21 @@ void InputSystem::update()
 							(*it)->onRightMouseDown(Point(current_mouse_pos.x, current_mouse_pos.y));
 					}
 					else
+					{
 						(*it)->onKeyDown(i);
 
+						if (i == (int)KeyCode::W)
+							y_axis = 1.0f;
+						else if (i == (int)KeyCode::S)
+							y_axis = -1.0f;
+
+						if (i == (int)KeyCode::D)
+							x_axis = 1.0f;
+						else if (i == (int)KeyCode::A)
+							x_axis = -1.0f;
+
+						key_down = i;
+					}
 					++it;
 				}
 			}
@@ -75,14 +92,19 @@ void InputSystem::update()
 						else if (i == VK_RBUTTON)
 							(*it)->onRightMouseUp(Point(current_mouse_pos.x, current_mouse_pos.y));
 						else
+						{
 							(*it)->onKeyUp(i);
+
+							y_axis = 0.0f;
+							x_axis = 0.0f;
+
+							key_up = i;
+						}
 
 						++it;
 					}
 				}
-
 			}
-
 		}
 		// store current keys state to old keys state buffer
 		::memcpy(m_old_keys_state, m_keys_state, sizeof(unsigned char) * 256);
@@ -117,6 +139,29 @@ void InputSystem::lockCursor(bool lock)
 Vector2D& InputSystem::getMousePosition()
 {
 	return m_mouse_pos;
+}
+
+bool InputSystem::isKeyDown(KeyCode code)
+{
+	if(key_down == (int)code)
+		return true;
+	return false;
+}
+
+bool InputSystem::isKeyUp(KeyCode code)
+{
+	if (key_up == (int)code)
+		return true;
+	return false;
+}
+
+float InputSystem::getAxisRaw(const char* type)
+{
+	if (type == "Horizontal")
+		return x_axis;
+	else if (type == "Vertical")
+		return y_axis;
+	return 0.0f;
 }
 
 InputSystem* InputSystem::get()

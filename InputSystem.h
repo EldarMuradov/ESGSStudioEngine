@@ -3,6 +3,7 @@
 #include <unordered_set>
 #include "Point.h"
 #include "Vector2D.h"
+#include "KeyCode.h"
 
 class InputSystem
 {
@@ -17,7 +18,13 @@ public:
 	void setCursorPosition(const Point& pos);
 	void showCursor(bool show);
 	void lockCursor(bool lock);
+
 	Vector2D& getMousePosition();
+
+	bool isKeyDown(KeyCode code);
+	bool isKeyUp(KeyCode code);
+
+	float getAxisRaw(const char* type);
 
 public:
 	static InputSystem* get();
@@ -34,6 +41,12 @@ private:
 
 	unsigned char m_keys_state[256] = {};
 	unsigned char m_old_keys_state[256] = {};
+
+	int key_up = 0;
+	int key_down = 0;
+
+	float x_axis = 0.0f;
+	float y_axis = 0.0f;
 
 	Point m_old_mouse_pos;
 

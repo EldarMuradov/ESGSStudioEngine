@@ -47,7 +47,7 @@ public:
 	void updateModel(Vector3D pos, Vector3D scale, Quaternion rot, const std::vector<MaterialPtr>& mat_list);
 	void updateCamera(CCamera* cam, const RECT& rc);
 	void updateSkyBox();
-	void updateLight();
+	void updateLight(CLight* light);
 	void updatePhisycs();
 	void renderObj(Entity* entity);
 	void renderObj(const MeshPtr& mesh, Vector3D pos, Vector3D scale, Quaternion rot, const std::vector<MaterialPtr>& mat_list);
@@ -76,18 +76,7 @@ private:
 private:
 	static float m_delta_time;
 
-	float m_delta_pos;
-	float m_delta_scale;
-	float m_delta_rot;
-
-	float m_rot_x = 0.0f;
-	float m_rot_y = 0.0f;
-
 	float m_light_rot_y = 0.0f;
-
-	float m_scale_cube = 1;
-	float m_forward = 0.0f;
-	float m_rightward = 0.0f;
 
 	bool cull = true;
 
@@ -108,9 +97,6 @@ private:
 	float m_attenuation = 2.0f;
 
 	std::chrono::system_clock::time_point m_prev_time;
-
-	bool m_play_state = false;
-	bool m_fullscreen_state = false;
 
 	std::vector<MaterialPtr> m_mat_list;
 

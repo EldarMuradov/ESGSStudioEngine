@@ -27,28 +27,30 @@ AppWindow::AppWindow()
 	m_world = std::make_unique<World>(m_scene);
 }
 
+CLight* light;
+
 void AppWindow::render()
 {
-	//clear the render target
 	GraphicsEngine::get()->getRenderSystem()->getImmediateDeviceContext()->clearRenderTargetColor(this->m_swap_chain, 0, 0.3f, 0.4f, 1);
 	RECT rc = this->getClientWindowRect();
 	GraphicsEngine::get()->getRenderSystem()->getImmediateDeviceContext()->setViewportSize(rc.right - rc.left, rc.bottom - rc.top);
 
 	m_rect = Vector2D(rc.right - rc.left, rc.bottom - rc.top);
 
-	//compute global transform matrices
 	update();
+
+	for (auto c : GraphicsEngine::get()->m_lights)
+	{
+		updateLight(c);
+		light = c;
+	}
 
 	//update entity rendering
 	for (auto c : GraphicsEngine::get()->m_meshes)
-	{
 		renderObj(c->getEntity());
-	}
-
+	
 	for (auto c : GraphicsEngine::get()->m_cameras)
-	{
 		updateCamera(c, rc);
-	}
 
 	m_mat_list.clear();
 	m_mat_list.push_back(m_sky_mat);
@@ -69,7 +71,6 @@ void AppWindow::render()
 void AppWindow::update()
 {
 	updateSkyBox();
-	updateLight();
 	updatePhisycs();
 }
 
@@ -90,6 +91,7 @@ void AppWindow::updateModel(Vector3D pos, Vector3D scale, Vector3D rot, const st
 	cc.m_camera_position = m_world_cam.getTranslation();
 
 	cc.m_light_position = m_light_position;
+	cc.light.color = light->getColor();
 
 	cc.m_light_radius = m_light_radius;
 	cc.m_light_direction = m_light_rot_matrix.getZDirection();
@@ -113,6 +115,7 @@ void AppWindow::updateEntityModel(CTransform* transform, const std::vector<Mater
 	cc.m_view = m_view_cam;
 	cc.m_proj = m_proj_cam;
 	cc.m_camera_position = m_world_cam.getTranslation();
+	cc.light.color = light->getColor();
 
 	cc.m_light_position = m_light_position;
 
@@ -141,6 +144,7 @@ void AppWindow::updateModel(Vector3D pos, Vector3D scale, Quaternion rot, const 
 	cc.m_proj = m_proj_cam;
 	cc.m_camera_position = m_world_cam.getTranslation();
 	cc.m_world.setScale(scale);
+	cc.light.color = light->getColor();
 
 	cc.m_light_position = m_light_position;
 
@@ -154,37 +158,10 @@ void AppWindow::updateModel(Vector3D pos, Vector3D scale, Quaternion rot, const 
 
 void AppWindow::updateCamera(CCamera* cam, const RECT& rc)
 {
-	Matrix4x4 world_cam, temp;
-	world_cam.setIdentity();
-
-	temp.setIdentity();
-	temp.setRotationX(m_rot_x);
-	world_cam *= temp;
-
-	temp.setIdentity();
-
-	temp.setRotationY(m_rot_y);
-	world_cam *= temp;
-
-	Vector3D new_pos = m_world_cam.getTranslation() + world_cam.getZDirection() * (m_forward * 0.05f);
-
-	new_pos = new_pos + world_cam.getXDirection() * (m_rightward * 0.05f);
-
-	world_cam.setTranslation(new_pos);
-
-	m_world_cam = world_cam;
-
-	world_cam.inverse();
-
-	//m_view_cam = world_cam;
-
-	int width = (this->getClientWindowRect().right - this->getClientWindowRect().left);
-	int height = (this->getClientWindowRect().bottom - this->getClientWindowRect().top);
+	cam->getEntity()->getTransform()->getWorldMatrix(m_world_cam);
 	cam->getViewMatrix(m_view_cam);
 	cam->getProjection(m_proj_cam);
 	cam->setScreenArea(rc);
-	
-	//m_proj_cam.setPerspectiveFovLH(1.57f, ((float)width / (float)height), 0.1f, 5000.0f);
 }
 
 void AppWindow::updateSkyBox()
@@ -200,13 +177,16 @@ void AppWindow::updateSkyBox()
 	m_sky_mat->setData(&cc, sizeof(constant));
 }
 
-void AppWindow::updateLight()
+void AppWindow::updateLight(CLight* light)
 {
-	//m_light_rot_y += 1.57f * m_delta_time;
+	constant cc;
 
-	float dist_from_origin = 3.0f;
-
-	m_light_position = Vector4D(0, 50, 0, 1.0f);
+	cc.light.direction = light->getEntity()->getTransform()->getZDirection();
+	cc.light.color = light->getColor();
+	m_light_position = light->getEntity()->getTransform()->getPosition();
+	//m_light_position = Vector4D(0, 50, 0, 1.0f);
+	light->updateLight(&cc);
+	//GraphicsEngine::get()->getRenderSystem()
 }
 
 void AppWindow::updatePhisycs()
@@ -219,7 +199,6 @@ void AppWindow::renderObj(Entity* entity)
 {
 	auto cmesh = entity->getComponent<CMesh>();
 	auto transform = entity->getComponent<CTransform>();
-	//updateModel(transform->getPosition(), transform->getScale(), transform->getRotation(), cmesh->getMaterials());
 	updateEntityModel(transform, cmesh->getMaterials());
 	drawMesh(cmesh->getMesh(), cmesh->getMaterials());
 }
@@ -274,9 +253,6 @@ void AppWindow::onCreate()
 
 	InputSystem::get()->addListener(this);
 
-	m_play_state = true;
-	InputSystem::get()->showCursor(false);
-
 	m_scene->awake();
 
 	m_sky_mesh = GraphicsEngine::get()->getMeshManager()->createMeshFromFile(L"Assets\\Meshes\\sphere.obj");
@@ -284,13 +260,9 @@ void AppWindow::onCreate()
 	RECT rc = this->getClientWindowRect();
 	m_swap_chain=GraphicsEngine::get()->getRenderSystem()->createSwapChain(this->m_hwnd, rc.right - rc.left, rc.bottom - rc.top);
 
-	m_world_cam.setTranslation(Vector3D(0, 0, -1));
-
 	m_sky_mat = GraphicsEngine::get()->createSkyMaterial(L"SkyBoxVertexShader.hlsl", L"SkyBoxShader.hlsl");
 
-	m_world_cam.setTranslation(Vector3D(0, 0, -2));
-
-	m_mat_list.resize(128);
+	m_mat_list.resize(32);
 
 	m_scene->start();
 }
@@ -330,69 +302,17 @@ void AppWindow::onSize()
 
 void AppWindow::onKeyDown(int key)
 {
-	/*if (!m_play_state) return;
 
-	if (key == 'W')
-	{
-		m_forward = 1.0f;
-		std::cout << "Debug: Moving forward" << std::endl;
-	}
-	else if (key == 'S')
-	{
-		m_forward = -1.0f;
-		std::cout << "Debug: Moving backward" << std::endl;
-	}
-	else if (key == 'A')
-	{
-		m_rightward = -1.0f;
-		std::cout << "Debug: Moving leftward" << std::endl;
-	}
-	else if (key == 'D')
-	{
-		m_rightward = 1.0f;
-		std::cout << "Debug: Moving rightward" << std::endl;
-	}
-	else if (key == 'O')
-	{
-		m_light_radius = (m_light_radius <= 0) ? 0.0f : m_light_radius - 1.0f * m_delta_time;
-	}
-	else if (key == 'P')
-	{
-		m_light_radius += 1.0f * m_delta_time;
-	}*/
 }
 
 void AppWindow::onKeyUp(int key)
 {
-	/*m_forward = 0.0f;
-	m_rightward = 0.0f;
-
-	if (key == 'G')
-	{
-		m_play_state = !m_play_state;
-		InputSystem::get()->showCursor(!m_play_state);
-	}
-	else if (key == 'F')
-	{
-		m_fullscreen_state = !m_fullscreen_state;
-		RECT size_screen = this->getSizeScreen();
 	
-		m_swap_chain->setFullScreen(m_fullscreen_state, size_screen.right, size_screen.bottom);
-	}*/
 }
 
 void AppWindow::onMouseMove(const Point& mouse_pos)
 {
-	/*if (!m_play_state)
-		return;
 
-	int width = (this->getClientWindowRect().right - this->getClientWindowRect().left);
-	int height = (this->getClientWindowRect().bottom - this->getClientWindowRect().top);
-
-	m_rot_x += (mouse_pos.m_y - (height / 2.0f)) * m_delta_time * 0.1f;
-	m_rot_y += (mouse_pos.m_x - (width / 2.0f)) * m_delta_time * 0.1f;
-
-	InputSystem::get()->setCursorPosition(Point((int)(width / 2.0f), (int)(height / 2.0f)));*/
 }
 
 void AppWindow::onLeftMouseDown(const Point& mouse_pos)
@@ -417,4 +337,5 @@ void AppWindow::onRightMouseUp(const Point& mouse_pos)
 
 AppWindow::~AppWindow()
 {
+
 }

@@ -30,6 +30,11 @@ public:
 
 	void getWorldMatrix(Matrix4x4& mat);
 
+	Vector3D getZDirection();
+	Vector3D getXDirection();
+
+	void isCamera(bool iscam);
+
 private:
 	void rotate(const Quaternion& q);
 	void rotateCam(const Vector2D& rot);
@@ -48,4 +53,6 @@ protected:
 	Quaternion m_rotation = Quaternion();
 
 	Matrix4x4 m_matrix;
+
+	bool is_camera = false;
 };

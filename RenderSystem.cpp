@@ -203,6 +203,7 @@ void RenderSystem::initRasterizerState()
 	desc.CullMode = D3D11_CULL_FRONT;
 	desc.DepthClipEnable = true;
 	desc.FillMode = D3D11_FILL_SOLID;
+	desc.FrontCounterClockwise = true;
 	m_d3d_device->CreateRasterizerState(&desc, &m_cull_front_state);
 
 	desc.CullMode = D3D11_CULL_BACK;

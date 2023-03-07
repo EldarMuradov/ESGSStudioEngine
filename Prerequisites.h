@@ -26,6 +26,7 @@ class AppWindow;
 class CTransform;
 class CMesh;
 class CCamera;
+class CLight;
 
 typedef std::shared_ptr<SwapChain> SwapChainPtr;
 typedef std::shared_ptr<DeviceContext> DeviceContextPtr;

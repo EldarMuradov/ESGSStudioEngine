@@ -22,7 +22,10 @@ void CTransform::onUpdate()
 void CTransform::setPosition(const Vector3D& pos)
 {
 	m_position = pos;
-	updateMatrix();
+	if (is_camera)
+		updateCamMatrix();
+	else
+		updateMatrix();
 }
 
 Vector3D CTransform::getPosition()
@@ -38,7 +41,10 @@ void CTransform::setCamRotation(const Vector2D& rot)
 void CTransform::setRotation(const Quaternion& rot)
 {
 	m_rotation = rot;
-	updateMatrix();
+	if (is_camera)
+		updateCamMatrix();
+	else
+		updateMatrix();
 }
 
 Quaternion CTransform::getRotation()
@@ -59,7 +65,10 @@ void CTransform::setRotationX(float delta)
 void CTransform::setScale(const Vector3D& scale)
 {
 	m_scale = scale;
-	updateMatrix();
+	if (is_camera)
+		updateCamMatrix();
+	else
+		updateMatrix();
 }
 
 Vector3D CTransform::getScale()
@@ -70,6 +79,21 @@ Vector3D CTransform::getScale()
 void CTransform::getWorldMatrix(Matrix4x4& mat)
 {
 	mat.setMatrix(m_matrix);
+}
+
+Vector3D CTransform::getZDirection()
+{
+	return m_matrix.getZDirection();
+}
+
+Vector3D CTransform::getXDirection()
+{
+	return m_matrix.getXDirection();
+}
+
+void CTransform::isCamera(bool iscam)
+{
+	is_camera = iscam;
 }
 
 void CTransform::rotate(const Quaternion& q)

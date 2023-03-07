@@ -9,6 +9,20 @@ struct PS_INPUT
 	float3 direction_to_camera: TEXCOORD1;
 };
 
+struct LightData 
+{
+	float4 color;
+	float4 direction;
+};
+
+struct VPS_INOUT
+{
+	float4 position: SV_POSITION;
+	float2 texcoord: TEXCOORD0;
+	float3 normal: NORMAL0;
+	float3 direction_to_camera: TEXCOORD1;
+};
+
 cbuffer constant: register(b0)
 {
 	row_major float4x4 m_world;
@@ -19,26 +33,27 @@ cbuffer constant: register(b0)
 	float4 m_light_position;
 	float m_light_radius;
 	float m_time;
+	LightData light;
 };
 
-float4 psmain(PS_INPUT input) : SV_TARGET
+float4 psmain(VPS_INOUT input) : SV_TARGET
 {
 	float4 color = TextureColor.Sample(TextureColorSampler, float2(input.texcoord.x, 1.0 - input.texcoord.y));
 
 	//AMBIENT LIGHT
-	float ka = 1.5;
+	float ka = 2.5;
 	float3 ia = float3(0.3, 0.3, 0.3);
-	//float3 ia = float3(0.09, 0.082, 0.082);
+	//float3 ia = float3(0.15, 0.15, 0.15);
 	ia *= (color.rgb);
 
 	float3 ambient_light = ka * ia;
 
 	//DIFFUSE LIGHT
-	float kd = 0.7;
+	float kd = 0.3;
 
 	float amount_diffuse_light = dot(m_light_direction.xyz, input.normal);
 
-	float3 id = float3(1, 1, 1);
+	float3 id = light.color.rgb;
 	id *= (color.rgb);
 
 	float3 diffuse_light = kd * id * amount_diffuse_light;

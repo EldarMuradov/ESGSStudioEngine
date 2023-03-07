@@ -171,6 +171,7 @@ public:
 		m_mat[2][2] = zfar / (zfar - znear);
 		m_mat[2][3] = 1.0f;
 		m_mat[3][2] = (-znear * zfar) / (zfar - znear);
+		m_mat[3][3] = 0.0f;
 	}
 
 

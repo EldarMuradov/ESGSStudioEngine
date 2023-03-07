@@ -1,6 +1,7 @@
 #pragma once
 #include "Matrix4x4.h"
 #include "Vector3D.h"
+#include "LightData.h"
 
 __declspec(align(16))
 struct constant
@@ -13,4 +14,5 @@ struct constant
 	Vector4D m_light_position = Vector4D(0, 1, 0, 0);
 	float m_light_radius = 4.0f;
 	float m_time = 0.0f;
+	LightData light;
 };

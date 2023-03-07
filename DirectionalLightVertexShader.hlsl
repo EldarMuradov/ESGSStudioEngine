@@ -13,6 +13,14 @@ struct VS_OUTPUT
 	float3 direction_to_camera: TEXCOORD1;
 };
 
+struct VPS_INOUT
+{
+	float4 position: SV_POSITION;
+	float2 texcoord: TEXCOORD0;
+	float3 normal: NORMAL0;
+	float3 direction_to_camera: TEXCOORD1;
+};
+
 cbuffer constant: register(b0)
 {
 	row_major float4x4 m_world;
@@ -25,9 +33,9 @@ cbuffer constant: register(b0)
 	float m_time;
 };
 
-VS_OUTPUT vsmain(VS_INPUT input)
+VPS_INOUT vsmain(VS_INPUT input)
 {
-	VS_OUTPUT output = (VS_OUTPUT)0;
+	VPS_INOUT output = (VPS_INOUT)0;
 
 	//WORLD SPACE
 	output.position = mul(input.position, m_world);
@@ -38,6 +46,6 @@ VS_OUTPUT vsmain(VS_INPUT input)
 	output.position = mul(output.position, m_proj);
 
 	output.texcoord = input.texcoord;
-	output.normal = input.normal;
+	output.normal = normalize(mul(input.normal, (float3x3)m_world));
 	return output;
 }
