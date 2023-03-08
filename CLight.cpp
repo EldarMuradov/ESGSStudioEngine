@@ -16,7 +16,6 @@ CLight::CLight()
 CLight::~CLight()
 {
     GraphicsEngine::get()->removeComponent(this);
-
 }
 
 void CLight::setColor(const Vector4D& color)
@@ -27,6 +26,16 @@ void CLight::setColor(const Vector4D& color)
 Vector4D CLight::getColor()
 {
     return m_color;
+}
+
+void CLight::setLightType(LightType type)
+{
+    m_light_type = type;
+}
+
+LightType CLight::getLightType()
+{
+    return m_light_type;
 }
 
 void CLight::updateLight(void* data)

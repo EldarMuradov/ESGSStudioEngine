@@ -69,7 +69,8 @@ SwapChainPtr RenderSystem::createSwapChain(HWND hwnd, UINT width, UINT height)
 	SwapChainPtr sc = nullptr;
 	try
 	{
-		sc=std::make_shared<SwapChain>(hwnd,width,height,this);
+		sc = std::make_shared<SwapChain>(hwnd, width, height, this);
+		m_swap_chain = sc;
 	}
 	catch (...) 
 	{
@@ -81,6 +82,21 @@ SwapChainPtr RenderSystem::createSwapChain(HWND hwnd, UINT width, UINT height)
 DeviceContextPtr RenderSystem::getImmediateDeviceContext()
 {
 	return this->m_imm_device_context;
+}
+
+ID3D11Device* RenderSystem::getDevice()
+{
+	return m_d3d_device;
+}
+
+SwapChainPtr RenderSystem::getSwapChain()
+{
+	return m_swap_chain;
+}
+
+ID3D11DeviceContext* RenderSystem::getDeviceContext()
+{
+	return m_imm_context;
 }
 
 VertexBufferPtr RenderSystem::createVertexBuffer(void* list_vertices, UINT size_vertex, UINT size_list, void* shader_byte_code, UINT size_byte_shader)

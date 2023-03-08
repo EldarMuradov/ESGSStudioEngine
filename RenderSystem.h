@@ -10,6 +10,9 @@ public:
 public:
 	SwapChainPtr createSwapChain(HWND hwnd, UINT width, UINT height);
 	DeviceContextPtr getImmediateDeviceContext();
+	ID3D11Device* getDevice();
+	SwapChainPtr getSwapChain();
+	ID3D11DeviceContext* getDeviceContext();
 	VertexBufferPtr createVertexBuffer(void* list_vertices, UINT size_vertex, UINT size_list, void* shader_byte_code, UINT size_byte_shader);
 	IndexBufferPtr createIndexBuffer(void* list_indices, UINT size_list);
 	ConstantBufferPtr createConstantBuffer(void* buffer, UINT size_buffer);
@@ -34,6 +37,8 @@ private:
 	IDXGIFactory* m_dxgi_factory;
 	ID3D11DeviceContext* m_imm_context;
 	ID3DBlob * m_blob = nullptr;
+
+	SwapChainPtr m_swap_chain;
 
 	ID3D11RasterizerState* m_cull_front_state = nullptr;
 	ID3D11RasterizerState* m_cull_back_state = nullptr;

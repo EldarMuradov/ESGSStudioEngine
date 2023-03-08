@@ -80,12 +80,12 @@ void PhysicsEngine::release()
 
 PhysicsEngine::~PhysicsEngine()
 {
-	m_material->release();
+	/*m_material->release();
 	m_foundation->release();
 	m_dispatcher->release();
 	m_scene->release();
 	m_pvd->disconnect();
 	m_pvd->release();
-	m_physics->release();
+	m_physics->release();*/
 	PhysicsEngine::m_engine = nullptr;
 }

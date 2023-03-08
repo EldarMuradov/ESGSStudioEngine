@@ -35,6 +35,7 @@ void PlayerController::onUpdate()
 		m_locked = !m_locked;
 		InputSystem::get()->lockCursor(m_locked);
 		InputSystem::get()->showCursor(!m_locked);
+		Sleep(100);
 	}
 
 	if (m_locked)
@@ -58,8 +59,8 @@ void PlayerController::onUpdate()
 		m_delta_y = deltaPos.m_y;
 
 		auto pos = transform->getPosition();
-		pos = pos + transform->getZDirection() * InputSystem::get()->getAxisRaw("Vertical") * 5.0f * AppWindow::getDeltaTime();
-		pos = pos + transform->getXDirection() * InputSystem::get()->getAxisRaw("Horizontal") * 5.0f * AppWindow::getDeltaTime();
+		pos = pos + transform->getZDirection() * InputSystem::get()->getAxisRaw("Vertical") * 4.0f * AppWindow::getDeltaTime();
+		pos = pos + transform->getXDirection() * InputSystem::get()->getAxisRaw("Horizontal") * 4.0f * AppWindow::getDeltaTime();
 
 		transform->setPosition(pos);
 	}

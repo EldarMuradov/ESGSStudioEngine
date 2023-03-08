@@ -1,5 +1,6 @@
 #pragma once
 #include <Windows.h>
+#include "GUIManager.h"
 
 class Window
 {
@@ -25,6 +26,9 @@ private:
 
 protected:
 	HWND m_hwnd;
+
+	GUIManager m_gui = GUIManager();
+
 	bool m_is_run;
 	bool m_is_init = false;
 };

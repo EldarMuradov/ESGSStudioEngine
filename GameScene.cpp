@@ -34,8 +34,6 @@ void GameScene::start()
 	auto light_entity = m_level->getWorld()->createEntity<Entity>();
 	auto light = light_entity->createComponent<CLight>();
 	light->setColor(Vector4D(0.50f, 0.50f, 0.50f, 1));
-	light_entity->getTransform()->setRotationY(0.707f);
-	light_entity->getTransform()->setRotationX(-0.707f);
 
 	//building 1
 	auto mesh = GraphicsEngine::get()->getMeshManager()->createMeshFromFile(L"Assets\\Meshes\\bulld.obj");

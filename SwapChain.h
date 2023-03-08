@@ -12,10 +12,16 @@ public:
 	void resize(unsigned int width, unsigned int height);
 	bool present(bool vsync);
 
+	ID3D11RenderTargetView* const* getRenderTargetViewC();
+	ID3D11RenderTargetView* getRenderTargetView();
+	ID3D11DepthStencilView* getDepthStencilView();
+	IDXGISwapChain* getSwapChain();
+
 	//Release the swap chain
 	~SwapChain();
 private:
 	void reloadBuffers(unsigned int width, unsigned int height);
+
 private:
 	IDXGISwapChain* m_swap_chain = nullptr;
 	ID3D11RenderTargetView* m_rtv = nullptr;

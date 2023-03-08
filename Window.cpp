@@ -1,8 +1,22 @@
 #include "Window.h"
 #include <exception>
+#include "imgui_impl_dx11.h"
+#include "imgui.h"
+#include "imgui_impl_win32.h"
+#include "GraphicsEngine.h"
+#include <tchar.h>
+#include "SwapChain.h"
+
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+const float clear_color_with_alpha[4] = { clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w };
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 {
+	if (ImGui_ImplWin32_WndProcHandler(hwnd, msg, wparam, lparam))
+		return true;
+
 	switch (msg)
 	{
 		case WM_CREATE:
@@ -60,10 +74,10 @@ Window::Window()
 	wc.style = NULL;
 	wc.lpfnWndProc = &WndProc;
 
-	if (!::RegisterClassEx(&wc)) 
+	if (!::RegisterClassEx(&wc))
 		throw std::exception("Failed to create {Window}. Error in ctor / {::RegisterClassEx == false}.");
 
-	m_hwnd = ::CreateWindowEx(WS_EX_OVERLAPPEDWINDOW, "ESGSStudioEngine", "ESGS Studio Graphics Engine",
+	m_hwnd = ::CreateWindowEx(WS_EX_OVERLAPPEDWINDOW, "ESGSStudioEngine", "ESGS Studio Engine",
 		WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 1024, 768,
 		NULL, NULL, NULL, NULL);
 
@@ -72,6 +86,17 @@ Window::Window()
 
 	::ShowWindow(m_hwnd, SW_SHOW);
 	::UpdateWindow(m_hwnd);
+
+	IMGUI_CHECKVERSION();
+
+	ImGui::CreateContext();
+
+	ImGuiIO& io = ImGui::GetIO();
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable some options
+
+	ImGui_ImplWin32_Init(m_hwnd);
+	ImGui_ImplDX11_Init(GraphicsEngine::get()->getRenderSystem()->getDevice(), GraphicsEngine::get()->getRenderSystem()->getDeviceContext());
+	ImGui::StyleColorsDark();
 
 	m_is_run = true;
 }
@@ -87,13 +112,30 @@ bool Window::broadcast()
 		this->m_is_init = true;
 	}
 
-	this->onUpdate();
-
 	while (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE) > 0)
 	{
 		TranslateMessage(&msg);
 		DispatchMessage(&msg);
 	}
+
+	ImGui_ImplDX11_NewFrame();
+	ImGui_ImplWin32_NewFrame();
+	ImGui::NewFrame();
+
+	GraphicsEngine::get()->getRenderSystem()->getDeviceContext()->OMSetRenderTargets(1,
+		GraphicsEngine::get()->getRenderSystem()->getSwapChain().get()->getRenderTargetViewC(),
+		GraphicsEngine::get()->getRenderSystem()->getSwapChain().get()->getDepthStencilView());
+	GraphicsEngine::get()->getRenderSystem()->getDeviceContext()->ClearRenderTargetView(
+		GraphicsEngine::get()->getRenderSystem()->getSwapChain().get()->getRenderTargetView(), clear_color_with_alpha);
+
+	this->onUpdate();
+
+	m_gui.update();
+
+	ImGui::Render();
+	ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
+
+	GraphicsEngine::get()->getRenderSystem()->getSwapChain().get()->present(true);
 
 	//Sleep(1);
 
@@ -151,4 +193,7 @@ void Window::onSize()
 
 Window::~Window()
 {
+	ImGui_ImplDX11_Shutdown();
+	ImGui_ImplWin32_Shutdown();
+	ImGui::DestroyContext();
 }

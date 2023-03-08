@@ -56,7 +56,7 @@ void AppWindow::render()
 	m_mat_list.push_back(m_sky_mat);
 	drawMesh(m_sky_mesh, m_mat_list);
 
-	m_swap_chain->present(true);
+	//m_swap_chain->present(true);
 
 	auto currentTime = std::chrono::system_clock::now();
 	auto elapsed = std::chrono::duration<double>(); 
@@ -258,7 +258,7 @@ void AppWindow::onCreate()
 	m_sky_mesh = GraphicsEngine::get()->getMeshManager()->createMeshFromFile(L"Assets\\Meshes\\sphere.obj");
 
 	RECT rc = this->getClientWindowRect();
-	m_swap_chain=GraphicsEngine::get()->getRenderSystem()->createSwapChain(this->m_hwnd, rc.right - rc.left, rc.bottom - rc.top);
+	m_swap_chain = GraphicsEngine::get()->getRenderSystem()->createSwapChain(this->m_hwnd, rc.right - rc.left, rc.bottom - rc.top);
 
 	m_sky_mat = GraphicsEngine::get()->createSkyMaterial(L"SkyBoxVertexShader.hlsl", L"SkyBoxShader.hlsl");
 

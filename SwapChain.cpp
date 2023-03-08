@@ -53,6 +53,26 @@ bool SwapChain::present(bool vsync)
 	return true;
 }
 
+ID3D11RenderTargetView* const* SwapChain::getRenderTargetViewC()
+{
+	return &m_rtv;
+}
+
+ID3D11RenderTargetView* SwapChain::getRenderTargetView()
+{
+	return m_rtv;
+}
+
+ID3D11DepthStencilView* SwapChain::getDepthStencilView()
+{
+	return m_dsv;
+}
+
+IDXGISwapChain* SwapChain::getSwapChain()
+{
+	return m_swap_chain;
+}
+
 SwapChain::~SwapChain()
 {
 	m_dsv->Release();
