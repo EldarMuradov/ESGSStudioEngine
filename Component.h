@@ -12,6 +12,11 @@ public:
 	
 	}
 
+	virtual const char* toStr() 
+	{
+		return "Component";
+	}
+
 	void release();
 
 	Entity* getEntity();

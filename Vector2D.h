@@ -31,6 +31,11 @@ public:
 		return Vector2D(m_x + vec.m_x, m_y + vec.m_y);
 	}
 
+	Vector2D operator *(const Vector2D& vec)
+	{
+		return Vector2D(m_x * vec.m_x, m_y * vec.m_y);
+	}
+
 	Vector2D operator +(const physx::PxVec2& vec)
 	{
 		return Vector2D(m_x + vec.x, m_y + vec.y);

@@ -191,8 +191,8 @@ public:
 		}
 		else
 		{
-			float fCoeff0 = sin((1.0f - t) * 3.1415926535f * 0.5f);
-			float fCoeff1 = sin(t * 3.1415926535f * 0.5f);
+			float fCoeff0 = sin((1.0f - t) * m_pi * 0.5f);
+			float fCoeff1 = sin(t * m_pi * 0.5f);
 
 			ret.m_x = fCoeff0 * m_x - fCoeff1 * m_y;
 			ret.m_y = fCoeff0 * m_y + fCoeff1 * m_x;
@@ -309,59 +309,61 @@ public:
 		return fromEulerRad(Vector3D(x, y, z) * 0.01745329251f);
 	}
 
-	static Quaternion  fromEulerRad(Vector3D euler) 
+	static Quaternion fromEulerRad(Vector3D euler) 
 	{
 		return eulerToQuaternion(euler);
 	}
 
-	//static Vector3D quaternionToEuler(Quaternion quat)
-	//{
-	//	Matrix4x4 mat;
-	//	mat.setIdentity();
+	Vector3D quaternionToEuler()
+	{
+		float sqw = m_w * m_w;
+		float sqx = m_x * m_x;
+		float sqy = m_y * m_y;
+		float sqz = m_z * m_z;
+		float unit = sqx + sqy + sqz + sqw; // if normalised is one, otherwise is correction factor
+		float test = m_x * m_w - m_y * m_z;
+		Vector3D v;
 
-	//	Vector3D rot;
-	//	mat.rotate(quat);
-	//	rot = matrixToEuler(mat);
-	//	return rot;
-	//}
+		if (test > 0.4995f * unit) 
+		{ 
+			// singularity at north pole
+			v.m_y = 2 * atan2(m_y, m_x);
+			v.m_x = m_pi / 2;
+			v.m_z = 0;
+			return normalizeAngles(v * m_rad2deg);
+		}
+		if (test < -0.4995f * unit) 
+		{ 
+			// singularity at south pole
+			v.m_y = -2 * atan2(m_y, m_x);
+			v.m_x = -m_pi / 2;
+			v.m_z = 0;
+			return normalizeAngles(v * m_rad2deg);
+		}
+		Quaternion q = Quaternion(m_w, m_z, m_x, m_y);
+		v.m_y = (float)atan2(2 * q.m_x * q.m_w + 2 * q.m_y * q.m_z, 1 - 2 * (q.m_z * q.m_z + q.m_w * q.m_w));  // Yaw
+		v.m_x = (float)asin(2 * (q.m_x * q.m_z - q.m_w * q.m_y));  // Pitch
+		v.m_z = (float)atan2(2 * q.m_x * q.m_y + 2 * q.m_z * q.m_w, 1 - 2 * (q.m_y * q.m_y + q.m_z * q.m_z));  // Roll
+		return normalizeAngles(v * m_deg2rad);
+	}
 
-	//Vector3D toEulerRad(Quaternion rotation)
-	//{
-	//	Quaternion outRotation = rotation.normalizeSafe(rotation);
-	//	return quaternionToEuler(outRotation);
-	//}
+	static Vector3D normalizeAngles(Vector3D angles)
+	{
+		angles.m_x = normalizeAngle(angles.m_x * 57.29578f);
+		angles.m_y = normalizeAngle(angles.m_y * 57.29578f);
+		angles.m_z = normalizeAngle(angles.m_z * 57.29578f);
 
-	//static Vector3D matrixToEuler(const Matrix4x4& matrix)
-	//{
-	//	Vector3D v;
-	//	if (matrix.m_mat[1][2] < 0.999f) // some fudge for imprecision
-	//	{
-	//		if (matrix.m_mat[1][2] > -0.999f) // some fudge for imprecision
-	//		{
-	//			v.m_x = asin(-matrix.m_mat[1][2]);
-	//			v.m_y = atan2(matrix.m_mat[0][2], matrix.m_mat[2][2]);
-	//			v.m_z = atan2(matrix.m_mat[1][0], matrix.m_mat[1][1]);
-	//			v = internalMakePositive(v);
-	//		}
-	//		else
-	//		{
-	//			// WARNING.  Not unique.  YA - ZA = atan2(r01,r00)
-	//			v.m_x = 3.1415926535f * 0.5f;
-	//			v.m_y = atan2(matrix.m_mat[0][1], matrix.m_mat[0][0]);
-	//			v.m_z = 0.0f;
-	//			v = internalMakePositive(v);
-	//		}
-	//	}
-	//	else
-	//	{
-	//		// WARNING.  Not unique.  YA + ZA = atan2(-r01,r00)
-	//		v.m_x = -3.1415926535f * 0.5f;
-	//		v.m_y = atan2(-matrix.m_mat[0][1], matrix.m_mat[0][0]);
-	//		v.m_z = 0.0f;
-	//		v = internalMakePositive(v);
-	//	}
-	//	return v;
-	//}
+		return angles;
+	}
+
+	static float normalizeAngle(float angle)
+	{
+		while (angle > 360)
+			angle -= 360;
+		while (angle < 0)
+			angle += 360;
+		return angle;
+	}
 
 public:
 	//Don't update unless you don't know quaternial math
@@ -377,4 +379,5 @@ private:
     double m_epsilon = 0.000001f;
 	double m_rad2deg = 57.29578f;
 	double m_deg2rad = 0.01745329251f;
+	double m_pi = 3.1415926535f;
 };

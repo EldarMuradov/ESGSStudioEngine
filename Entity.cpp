@@ -27,6 +27,26 @@ CTransform* Entity::getTransform()
 	return m_transform;
 }
 
+void Entity::setName(const char* name)
+{
+	m_name = name;
+}
+
+const char* Entity::getName()
+{
+	return m_name;
+}
+
+void Entity::setTag(const char* tag)
+{
+	m_tag = tag;
+}
+
+const char* Entity::getTag()
+{
+	return m_tag;
+}
+
 InputSystem* Entity::getInputSystem()
 {
 	return InputSystem::get();
@@ -45,13 +65,30 @@ void Entity::createComponentInternal(Component* component, size_t id)
 	auto compPtr = std::unique_ptr<Component>(component);
 
 	m_components.emplace(id, std::move(compPtr));
+
 	component->m_type_id = id;
 	component->m_entity = this;
 
 	component->onCreateInternal();
+
+	m_internal_comp.push_back(component);
 }
 
 void Entity::removeComponent(size_t id)
 {
 	m_components.erase(id);
+	auto comp = m_components.find(id)->second.get();
+	for (std::vector<Component*>::iterator iter = m_internal_comp.begin(); iter != m_internal_comp.end(); ++iter)
+	{
+		if (*iter == comp)
+		{
+			m_internal_comp.erase(iter);
+			break;
+		}
+	}
+}
+
+std::vector<Component*> Entity::getAllComponentsFromEntity()
+{
+	return m_internal_comp;
 }

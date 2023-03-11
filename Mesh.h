@@ -17,10 +17,14 @@ public:
 	const MaterialSlot& getMaterialSlots(unsigned int slot);
 	size_t getNumMatSlots();
 
+	const char* getFilePath();
+
 private:
 	VertexBufferPtr m_vertex_buffer;
 	IndexBufferPtr m_index_buffer;
 	std::vector<MaterialSlot> m_mat_slots;
+
+	const char* m_path;
 
 private:
 	friend class DeviceContext;

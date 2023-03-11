@@ -1,6 +1,7 @@
 #pragma once
 #include "Prerequisites.h"
 #include <map>
+#include <vector>
 #include "Component.h"
 #include "ESGSStudioEngine.h"
 #include "InputSystem.h"
@@ -14,6 +15,12 @@ public:
 
 	World* getWorld();
 	CTransform* getTransform();
+
+	void setName(const char* name);
+	const char* getName();
+
+	void setTag(const char* tag);
+	const char* getTag();
 
 	InputSystem* getInputSystem();
 
@@ -47,6 +54,8 @@ private:
 	void createComponentInternal(Component* component, size_t id);
 	void removeComponent(size_t id);
 
+	std::vector<Component*> getAllComponentsFromEntity();
+
 protected:
 	virtual void onCreate() 
 	{
@@ -64,8 +73,15 @@ protected:
 	World* m_world = nullptr;
 
 	CTransform* m_transform = nullptr;
+
 	std::map<size_t, std::unique_ptr<Component>> m_components;
 
+	std::vector<Component*> m_internal_comp;
+
+	const char* m_name = "Entity";
+	const char* m_tag = "Default";
+
 	friend class World;
+	friend class InspectorTool;
 	friend class Component;
 };

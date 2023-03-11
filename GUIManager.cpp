@@ -2,6 +2,7 @@
 #include "imgui.h"
 #include "AppWindow.h"
 #include <string>
+#include "InspectorTool.h"
 
 GUIManager::GUIManager()
 {
@@ -12,6 +13,8 @@ GUIManager::~GUIManager()
 {
 
 }
+
+InspectorTool inspector = InspectorTool();
 
 std::string fps = "FPS: ";
 bool is_tool_active = true;
@@ -25,14 +28,14 @@ void GUIManager::update()
     ImGui::Text(fps_c.c_str());
     ImGui::End();
 
+    inspector.renderBody();
+
+    /*
     ImGui::Begin("Debug Tool", &is_tool_active, ImGuiWindowFlags_MenuBar);
     if (ImGui::BeginMenuBar())
     {
         if (ImGui::BeginMenu("Console"))
         {
-            if (ImGui::MenuItem("Open..", "Ctrl+O")) { /* Do stuff */ }
-            if (ImGui::MenuItem("Save", "Ctrl+S")) { /* Do stuff */ }
-            if (ImGui::MenuItem("Close", "Ctrl+W")) { is_tool_active = false; }
             ImGui::EndMenu();
         }
         ImGui::EndMenuBar();
@@ -48,4 +51,43 @@ void GUIManager::update()
     ImGui::Text("Success");
     ImGui::Text("Console>");
     ImGui::End();
+
+    ImGui::Begin("Hierarchy Tool", &is_tool_active, ImGuiWindowFlags_MenuBar);
+    if (ImGui::BeginMenuBar())
+    {
+        if (ImGui::BeginMenu("Entities"))
+        {
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenuBar();
+    }
+
+    ImGui::TextColored(ImVec4(1, 1, 0, 1), "Global:");
+    ImGui::Text("-> PlayerController");
+    ImGui::Text("DirectionalLight");
+    ImGui::Text("Terrain");
+    ImGui::Text("Box");
+    ImGui::Text("House (5)");
+    ImGui::Text("Building (2)");
+    ImGui::End();
+
+    ImGui::Begin("Inspector Tool", &is_tool_active, ImGuiWindowFlags_MenuBar);
+    if (ImGui::BeginMenuBar())
+    {
+        if (ImGui::BeginMenu("Components"))
+        {
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenuBar();
+    }
+
+    ImGui::TextColored(ImVec4(1, 1, 0, 1), "Entity: PlayerController");
+    ImGui::Text("Transform");
+    ImGui::Text("MeshRenderer");
+    ImGui::Text("Rigidbody");
+    ImGui::Text("Camera");
+    ImGui::Text("Light (Point)");
+    ImGui::End();
+    */
+
 }

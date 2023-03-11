@@ -14,6 +14,11 @@ CMesh::~CMesh()
     GraphicsEngine::get()->removeComponent(this);
 }
 
+const char* CMesh::toStr()
+{
+    return "MeshRenderer";
+}
+
 void CMesh::setMesh(const MeshPtr& mesh)
 {
     m_mesh = mesh;

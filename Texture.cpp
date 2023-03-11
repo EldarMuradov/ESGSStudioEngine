@@ -35,6 +35,8 @@ Texture::Texture(const wchar_t* full_path): Resource(full_path)
 			&m_shader_res_view);
 		if (FAILED(res)) 
 			throw std::exception("Failed to create {Texture}. Error in ctor / {m_d3d_device->CreateShaderResourceView(...)}.");
+
+		m_path = full_path;
 	}
 	else
 		throw std::exception("Failed to create {Texture}. Error in ctor / {DirectX::LoadFromWICFile(...)}.");
@@ -44,4 +46,9 @@ Texture::~Texture()
 {
 	m_shader_res_view->Release();
 	m_texture->Release();
+}
+
+const wchar_t* Texture::getFilePath()
+{
+	return m_path;
 }

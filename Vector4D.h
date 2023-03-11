@@ -37,6 +37,33 @@ public:
 		this->m_z = v1.m_x * (v2.m_y * v3.m_w - v3.m_y * v2.m_w) - v1.m_y * (v2.m_x * v3.m_w - v3.m_x * v2.m_w) + v1.m_w * (v2.m_x * v3.m_y - v3.m_x * v2.m_y);
 		this->m_w = -(v1.m_x * (v2.m_y * v3.m_z - v3.m_y * v2.m_z) - v1.m_y * (v2.m_x * v3.m_z - v3.m_x * v2.m_z) + v1.m_z * (v2.m_x * v3.m_y - v3.m_x * v2.m_y));
 	}
+
+	/*Vector4D multipleByMatrix4x4(Matrix4x4& matrix)
+	{
+		float x, y, z, w;
+
+		x = m_x * matrix.m_mat[0][0] +
+			m_y * matrix.m_mat[0][1] +
+			m_z * matrix.m_mat[0][2] +
+			m_w * matrix.m_mat[0][3];
+
+		y = m_x * matrix.m_mat[1][0] +
+			m_y * matrix.m_mat[1][1] +
+			m_z * matrix.m_mat[1][2] +
+			m_w * matrix.m_mat[1][3];
+
+		z = m_x * matrix.m_mat[2][0] +
+			m_y * matrix.m_mat[2][1] +
+			m_z * matrix.m_mat[2][2] +
+			m_w * matrix.m_mat[2][3];
+
+		w = m_x * matrix.m_mat[3][0] +
+			m_y * matrix.m_mat[3][1] +
+			m_z * matrix.m_mat[3][2] +
+			m_w * matrix.m_mat[3][3];
+
+		return Vector4D(x, y, z, w);
+	}*/
 	
 	~Vector4D()
 	{

@@ -18,6 +18,11 @@ CLight::~CLight()
     GraphicsEngine::get()->removeComponent(this);
 }
 
+const char* CLight::toStr()
+{
+    return "Light";
+}
+
 void CLight::setColor(const Vector4D& color)
 {
     m_color = color;

@@ -14,6 +14,11 @@ CTransform::~CTransform()
 {
 }
 
+const char* CTransform::toStr()
+{
+	return "Transform";
+}
+
 void CTransform::onUpdate()
 {
 
@@ -50,6 +55,13 @@ void CTransform::setRotation(const Quaternion& rot)
 Quaternion CTransform::getRotation()
 {
 	return m_rotation;
+}
+
+Vector3D CTransform::getEulerRotation()
+{
+	if(m_entity->getComponent<CCamera>() != nullptr)
+		return m_euler_rotation * 57.29578f;
+	return m_rotation.quaternionToEuler() * 57.29578f;
 }
 
 void CTransform::setRotationY(float delta)

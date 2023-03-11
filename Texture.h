@@ -8,9 +8,15 @@ public:
 	Texture(const wchar_t* full_path);
 	~Texture();
 
+	const wchar_t* getFilePath();
+
 private:
 	ID3D11Resource* m_texture = nullptr;
+
+	const  wchar_t* m_path;
+
 	ID3D11ShaderResourceView* m_shader_res_view = nullptr;
+
 	ID3D11SamplerState* m_sampler_state = nullptr;
 
 private:

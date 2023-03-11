@@ -93,6 +93,8 @@ Mesh::Mesh(const wchar_t* full_path): Resource(full_path)
 	m_vertex_buffer = GraphicsEngine::get()->getRenderSystem()->createVertexBuffer(&list_vertices[0], sizeof(VertexMesh),
 		(UINT)list_vertices.size(), shader_byte_code, (UINT)size_shader);
 	m_index_buffer = GraphicsEngine::get()->getRenderSystem()->createIndexBuffer(&list_indices[0], (UINT)list_indices.size());
+
+	m_path = inputfile.c_str();
 }
 
 const VertexBufferPtr& Mesh::getVertexBuffer()
@@ -115,6 +117,11 @@ const MaterialSlot& Mesh::getMaterialSlots(unsigned int slot)
 size_t Mesh::getNumMatSlots()
 {
 	return m_mat_slots.size();
+}
+
+const char* Mesh::getFilePath()
+{
+	return m_path;
 }
 
 Mesh::~Mesh()

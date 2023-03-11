@@ -6,6 +6,7 @@
 #include "Quaternion.h"
 #include "ESGSStudioEngine.h"
 #include "PlayerController.h"
+#include "InspectorTool.h"
 
 GameScene::GameScene()
 {
@@ -27,13 +28,17 @@ Entity* entity_box = nullptr;
 void GameScene::start()
 {
 	auto player = m_level->getWorld()->createEntity<PlayerController>();
+	player->setTag("Player");
+	player->setName("Player Controller");
 
 	m_level->getWorld()->setSkyTexture(L"Assets\\Textures\\pinksky.png");
 
 	//light
 	auto light_entity = m_level->getWorld()->createEntity<Entity>();
+	light_entity->setName("Directional Light");
 	auto light = light_entity->createComponent<CLight>();
 	light->setColor(Vector4D(0.50f, 0.50f, 0.50f, 1));
+	light->setLightType(LightType::Directional);
 
 	//building 1
 	auto mesh = GraphicsEngine::get()->getMeshManager()->createMeshFromFile(L"Assets\\Meshes\\bulld.obj");
@@ -42,6 +47,7 @@ void GameScene::start()
 	material->addTexture(tex);
 
 	m_entity = m_level->getWorld()->createEntity<Entity>();
+	m_entity->setName("Building");
 
 	auto cmesh_home = m_entity->createComponent<CMesh>();
 	cmesh_home->setMesh(mesh);
@@ -60,6 +66,7 @@ void GameScene::start()
 	entity_home2->getTransform()->setPosition(Vector3D(25, -6, 10));
 	entity_home2->getTransform()->setRotation(Quaternion::euler(1, 1, 0));
 	entity_home2->getTransform()->setScale(Vector3D(0.3f, 0.3f, 0.3f));
+	entity_home2->setName("Building (2)");
 
 	//box
 	auto mesh_box = GraphicsEngine::get()->getMeshManager()->createMeshFromFile(L"Assets\\Meshes\\room.obj");
@@ -68,6 +75,8 @@ void GameScene::start()
 	material_box->addTexture(tex_box);
 
 	entity_box = m_level->getWorld()->createEntity<Entity>();
+
+	entity_box->setName("Box");
 	auto cmesh_box = entity_box->createComponent<CMesh>();
 	cmesh_box->setMesh(mesh_box);
 	cmesh_box->addMaterial(material_box);
@@ -82,6 +91,7 @@ void GameScene::start()
 	material_heap->addTexture(tex_heap);
 
 	auto entity_heap = m_level->getWorld()->createEntity<Entity>();
+	entity_heap->setName("Heap");
 	auto cmesh_heap = entity_heap->createComponent<CMesh>();
 	cmesh_heap->setMesh(mesh_heap);
 	cmesh_heap->addMaterial(material_heap);
@@ -97,6 +107,7 @@ void GameScene::start()
 	material_terr->addTexture(tex_terr);
 
 	auto entity_terr = m_level->getWorld()->createEntity<Entity>();
+	entity_terr->setName("Terrain");
 	auto cmesh_terr = entity_terr->createComponent<CMesh>();
 	cmesh_terr->setMesh(mesh_terr);
 	cmesh_terr->addMaterial(material_terr);
@@ -142,6 +153,9 @@ void GameScene::start()
 			entity_h->getTransform()->setScale(Vector3D(1, 1, 1));
 		}
 	}
+
+	InspectorTool::setCurrentEntity(player);
+	InspectorTool::setCurrentCam(player->getComponent<CCamera>());
 }
 
 void GameScene::update()

@@ -9,6 +9,8 @@ public:
 	CLight();
 	virtual ~CLight();
 
+	virtual const char* toStr() override;
+
 	void setColor(const Vector4D& color);
 	Vector4D getColor();
 

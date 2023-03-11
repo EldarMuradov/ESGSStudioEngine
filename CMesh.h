@@ -9,6 +9,8 @@ public:
 	CMesh();
 	virtual ~CMesh();
 
+	virtual const char* toStr() override;
+
 	void setMesh(const MeshPtr& mesh);
 	const MeshPtr& getMesh();
 

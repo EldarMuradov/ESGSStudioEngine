@@ -272,6 +272,7 @@ void AppWindow::onUpdate()
 	Window::onUpdate();
 	InputSystem::get()->update();
 
+
 	m_scene->update();
 	this->render();
 	m_world->update();

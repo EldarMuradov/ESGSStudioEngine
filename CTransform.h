@@ -13,6 +13,8 @@ public:
 	CTransform();
 	virtual ~CTransform();
 
+	virtual const char* toStr() override;
+
 	void onUpdate() override;
 
 	void setPosition(const Vector3D& pos);
@@ -21,6 +23,8 @@ public:
 	void setCamRotation(const Vector2D& rot);
 	void setRotation(const Quaternion& rot);
 	Quaternion getRotation();
+
+	Vector3D getEulerRotation();
 
 	void setRotationY(float delta);
 	void setRotationX(float delta);
@@ -55,4 +59,6 @@ protected:
 	Matrix4x4 m_matrix;
 
 	bool is_camera = false;
+
+	friend class CCamera;
 };
