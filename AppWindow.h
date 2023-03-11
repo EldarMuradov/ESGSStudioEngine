@@ -59,6 +59,10 @@ public:
 	static Vector2D getRect();
 	static float getDeltaTime();
 
+	static bool getPlayState();
+
+	static void setPlayState(bool state);
+
 public:
 	const MaterialPtr& getSkyMaterial();
 

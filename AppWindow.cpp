@@ -20,14 +20,14 @@
 float AppWindow::m_delta_time = 0;
 Vector2D AppWindow::m_rect = Vector2D();
 
+CLight* light;
+
 AppWindow::AppWindow()
 {
 	m_scene = new GameScene();
 	m_scene->m_level = this;
 	m_world = std::make_unique<World>(m_scene);
 }
-
-CLight* light;
 
 void AppWindow::render()
 {
@@ -45,7 +45,6 @@ void AppWindow::render()
 		light = c;
 	}
 
-	//update entity rendering
 	for (auto c : GraphicsEngine::get()->m_meshes)
 		renderObj(c->getEntity());
 	
@@ -56,8 +55,6 @@ void AppWindow::render()
 	m_mat_list.push_back(m_sky_mat);
 	drawMesh(m_sky_mesh, m_mat_list);
 
-	//m_swap_chain->present(true);
-
 	auto currentTime = std::chrono::system_clock::now();
 	auto elapsed = std::chrono::duration<double>(); 
 	if (m_prev_time.time_since_epoch().count())
@@ -65,7 +62,7 @@ void AppWindow::render()
 	m_prev_time = currentTime;
 	m_delta_time = (float)elapsed.count();
 
-	std::cout << "FPS: " << (float)(1.00f / (m_delta_time)) << std::endl;
+	//Debug::Log("FPS: ", (float)(1.00f / (m_delta_time)));
 }
 
 void AppWindow::update()
@@ -242,6 +239,16 @@ float AppWindow::getDeltaTime()
 	return m_delta_time;
 }
 
+bool AppWindow::getPlayState()
+{
+	return m_play;
+}
+
+void AppWindow::setPlayState(bool state)
+{
+	m_play = state;
+}
+
 const MaterialPtr& AppWindow::getSkyMaterial()
 {
 	return m_sky_mat;
@@ -272,10 +279,17 @@ void AppWindow::onUpdate()
 	Window::onUpdate();
 	InputSystem::get()->update();
 
-
-	m_scene->update();
 	this->render();
-	m_world->update();
+	if (m_play)
+	{
+		m_scene->update();
+
+		m_world->update();
+	}
+	else
+	{
+		m_scene->editorUpdate();
+	}
 }
 
 void AppWindow::onDestroy()
