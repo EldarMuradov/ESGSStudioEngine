@@ -3,6 +3,7 @@
 #include "Entity.h"
 #include "Prerequisites.h"
 #include <set>
+#include <vector>
 
 class World
 {
@@ -29,11 +30,16 @@ public:
 
 	void setSkyTexture(const wchar_t* path);
 
+	static std::vector<Entity*> getAllEntities();
+
 private:
 	void createEntityInternal(Entity* entity, size_t id);
 	void removeEntity(Entity* entity);
 private:
 	std::map<size_t, std::map<Entity*, std::unique_ptr<Entity>>> m_entities;
+
+	static std::vector<Entity*> m_all;
+
 	std::set<Entity*> m_entities_to_destroy;
 
 	GameScene* m_game = nullptr;

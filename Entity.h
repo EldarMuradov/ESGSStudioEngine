@@ -16,8 +16,8 @@ public:
 	World* getWorld();
 	CTransform* getTransform();
 
-	void setName(const char* name);
-	const char* getName();
+	void setName(std::string name);
+	std::string getName();
 
 	void setTag(const char* tag);
 	const char* getTag();
@@ -78,7 +78,7 @@ protected:
 
 	std::vector<Component*> m_internal_comp;
 
-	const char* m_name = "Entity";
+	std::string m_name = "Entity";
 	const char* m_tag = "Default";
 
 	friend class World;

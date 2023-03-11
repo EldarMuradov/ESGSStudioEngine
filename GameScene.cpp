@@ -7,6 +7,7 @@
 #include "ESGSStudioEngine.h"
 #include "PlayerController.h"
 #include "InspectorTool.h"
+#include "Counter.h"
 
 GameScene::GameScene()
 {
@@ -24,10 +25,11 @@ void GameScene::awake()
 
 int i = 0;
 Entity* entity_box = nullptr;
+Entity* player;
 
 void GameScene::start()
 {
-	auto player = m_level->getWorld()->createEntity<PlayerController>();
+	player = m_level->getWorld()->createEntity<PlayerController>();
 	player->setTag("Player");
 	player->setName("Player Controller");
 
@@ -154,7 +156,6 @@ void GameScene::start()
 		}
 	}
 
-	InspectorTool::setCurrentEntity(player);
 	InspectorTool::setCurrentCam(player->getComponent<CCamera>());
 }
 
@@ -163,4 +164,36 @@ void GameScene::update()
 	i++;
 	m_entity->getTransform()->setRotation(Quaternion::euler(1, i, 0));
 	entity_box->getTransform()->setRotation(Quaternion::euler(i, i, i));
+}
+
+float m_delta_x = 0;
+float m_delta_y = 0;
+float m_rot_x = 0;
+float m_rot_y = 0;
+
+float posx = 0;
+float posy = 0;
+
+void GameScene::editorUpdate()
+{
+	/*auto deltaPos = InputSystem::get()->getMousePosition();
+
+	int width = AppWindow::getRect().m_x;
+	int height = AppWindow::getRect().m_y;
+
+	if (InputSystem::get()->getMouseButton(0) && (m_delta_x != deltaPos.m_x || m_delta_y != deltaPos.m_y))
+	{
+		m_rot_x += (deltaPos.m_y - posx) * AppWindow::getDeltaTime() * 0.1f;
+		m_rot_y += (deltaPos.m_x - posy) * AppWindow::getDeltaTime() * 0.1f;
+
+		Vector2D rot = Vector2D(m_rot_x, m_rot_y);
+
+		player->getTransform()->setCamRotation(rot);
+	}
+
+	m_delta_x = deltaPos.m_x;
+	m_delta_y = deltaPos.m_y;
+
+	posx = deltaPos.m_x;
+	posy = deltaPos.m_y;*/
 }

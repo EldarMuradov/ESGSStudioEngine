@@ -27,6 +27,8 @@ private:
 protected:
 	HWND m_hwnd;
 
+	static bool m_play;
+
 	GUIManager m_gui = GUIManager();
 
 	bool m_is_run;

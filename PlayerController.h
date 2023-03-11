@@ -20,6 +20,6 @@ private:
 	float m_delta_x = 0;
 	float m_delta_y = 0;
 
-	bool m_locked = true;
+	bool m_locked = false;
 };
 

@@ -2,10 +2,13 @@
 #include "World.h"
 #include "Component.h"
 #include "ESGSStudioEngine.h"
+#include <string>
+#include "Counter.h"
 
 Entity::Entity()
 {
 	m_transform = createComponent<CTransform>();
+	m_name = "Entity (" + std::to_string(Counter::getCount()) + ")";
 }
 
 Entity::~Entity()
@@ -27,12 +30,12 @@ CTransform* Entity::getTransform()
 	return m_transform;
 }
 
-void Entity::setName(const char* name)
+void Entity::setName(std::string name)
 {
 	m_name = name;
 }
 
-const char* Entity::getName()
+std::string Entity::getName()
 {
 	return m_name;
 }

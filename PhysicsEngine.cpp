@@ -4,6 +4,7 @@
 #include <PxPhysics.h>
 #include <PxPhysicsAPI.h>
 #include <iostream>
+#include "Debug.h"
 
 PhysicsEngine* PhysicsEngine::m_engine = nullptr;
 physx::PxScene* PhysicsEngine::m_scene = NULL;
@@ -38,7 +39,14 @@ PhysicsEngine::PhysicsEngine()
 
 	physx::PxPvdSceneClient* client = m_scene->getScenePvdClient();
 
+	std::string log;
+	if(m_pvd->isConnected())
+		log = "PVD Conn: 1";
+	else 
+		log = "PVD Conn: 0";
+
 	std::cout << "PVD Conn: " << m_pvd->isConnected() << "\n";
+	Debug::Log(log);
 
 	if (client)
 	{

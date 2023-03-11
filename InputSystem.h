@@ -19,6 +19,8 @@ public:
 	void showCursor(bool show);
 	void lockCursor(bool lock);
 
+	bool getMouseButton(int i);
+
 	Vector2D& getMousePosition();
 
 	bool isKeyDown(KeyCode code);
@@ -51,7 +53,7 @@ private:
 	Point m_old_mouse_pos;
 
 	bool m_first_time = true;
-	bool m_lock_cursor = true;
+	bool m_lock_cursor = false;
 
 	static InputSystem* m_system;
 };

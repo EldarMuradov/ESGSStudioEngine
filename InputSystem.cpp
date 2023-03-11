@@ -5,6 +5,9 @@
 
 InputSystem* InputSystem::m_system = nullptr;
 
+bool m_l_b = false;
+bool m_r_b = false;
+
 InputSystem::InputSystem()
 {
 }
@@ -52,13 +55,19 @@ void InputSystem::update()
 				{
 					if (i == VK_LBUTTON)
 					{
-						if (m_keys_state[i] != m_old_keys_state[i]) 
+						if (m_keys_state[i] != m_old_keys_state[i])
+						{
 							(*it)->onLeftMouseDown(Point(current_mouse_pos.x, current_mouse_pos.y));
+						}
+							m_l_b = true;
 					}
 					else if (i == VK_RBUTTON)
 					{
 						if (m_keys_state[i] != m_old_keys_state[i])
+						{
 							(*it)->onRightMouseDown(Point(current_mouse_pos.x, current_mouse_pos.y));
+						}
+							m_r_b = true;
 					}
 					else
 					{
@@ -88,9 +97,15 @@ void InputSystem::update()
 					while (it != m_set_listeners.end())
 					{
 						if (i == VK_LBUTTON)
+						{
 							(*it)->onLeftMouseUp(Point(current_mouse_pos.x, current_mouse_pos.y));
+							m_l_b = false;
+						}
 						else if (i == VK_RBUTTON)
+						{
 							(*it)->onRightMouseUp(Point(current_mouse_pos.x, current_mouse_pos.y));
+							m_r_b = false;
+						}
 						else
 						{
 							(*it)->onKeyUp(i);
@@ -134,6 +149,16 @@ void InputSystem::showCursor(bool show)
 void InputSystem::lockCursor(bool lock)
 {
 	m_lock_cursor = lock;
+}
+
+bool InputSystem::getMouseButton(int i)
+{
+	if (i == 0)
+		return m_l_b;
+	else if (i == 1)
+		return m_r_b;
+
+	return false;
 }
 
 Vector2D& InputSystem::getMousePosition()

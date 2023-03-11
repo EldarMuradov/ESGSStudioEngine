@@ -16,9 +16,6 @@ void PlayerController::onCreate()
 
 	createComponent<CCamera>();
 
-	InputSystem::get()->lockCursor(true);
-	InputSystem::get()->showCursor(false);
-
 	getTransform()->isCamera(true);
 
 	getTransform()->setPosition(Vector3D(0, 0, -10.0f));

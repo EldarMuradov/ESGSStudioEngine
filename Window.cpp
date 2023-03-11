@@ -7,6 +7,8 @@
 #include <tchar.h>
 #include "SwapChain.h"
 
+bool Window::m_play = false;
+
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);

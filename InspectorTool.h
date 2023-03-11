@@ -10,15 +10,10 @@ public:
 
 	virtual void renderBody() override;
 
-	static void setCurrentEntity(Entity* entity);
- 	static Entity* getCurrentEntity();
-
 	static void setCurrentCam(CCamera* cam);
 	static CCamera* getCurrentCam();
 
-public:
-	static Entity* m_current_entity;
-
+private:
 	static CCamera* m_cam;
 
 	bool m_is_active_tool = true;

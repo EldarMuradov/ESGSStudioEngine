@@ -6,8 +6,8 @@
 #include <iostream>
 #include "imgui_internal.h"
 #include <comdef.h>
+#include "HierarchyTool.h"
 
-Entity* InspectorTool::m_current_entity = nullptr;
 CCamera* InspectorTool::m_cam = nullptr;
 
 InspectorTool::InspectorTool()
@@ -20,21 +20,21 @@ InspectorTool::~InspectorTool()
 
 void InspectorTool::renderBody()
 {
-	if (m_current_entity != nullptr)
+	if (HierarchyTool::m_current_entity != nullptr)
 	{
         ImGui::Begin("Inspector Tool", &m_is_active_tool, ImGuiWindowFlags_MenuBar);
         if (ImGui::BeginMenuBar())
         {
-            ImGui::TextColored(ImVec4(1, 1, 0, 1), m_current_entity->getName());
+            ImGui::TextColored(ImVec4(1, 1, 0, 1), HierarchyTool::m_current_entity->getName().c_str());
             ImGui::TextColored(ImVec4(1, 1, 0, 1), "Components:");
             ImGui::EndMenuBar();
         }
 
         ImGui::Text("Tag:");
-        ImGui::BulletText(m_current_entity->getTag());
+        ImGui::BulletText(HierarchyTool::m_current_entity->getTag());
         ImGui::Separator();
 
-        for (auto c : m_current_entity->getAllComponentsFromEntity())
+        for (auto c : HierarchyTool::m_current_entity->getAllComponentsFromEntity())
         {
             if (c->toStr() == "Transform")
             {
@@ -42,16 +42,16 @@ void InspectorTool::renderBody()
                 {
                     CTransform* transform = (CTransform*)c;
                     std::string pos = "X: " + std::to_string((int)transform->getPosition().m_x)
-                        + "   Y:" + std::to_string((int)transform->getPosition().m_y)
-                        + "   Z:" + std::to_string((int)transform->getPosition().m_z);
+                        + "   Y: " + std::to_string((int)transform->getPosition().m_y)
+                        + "   Z: " + std::to_string((int)transform->getPosition().m_z);
 
                     std::string rot = "X: " + std::to_string(-(int)transform->getEulerRotation().m_x)
-                        + "   Y:" + std::to_string((int)transform->getEulerRotation().m_y)
-                        + "   Z:" + std::to_string((int)transform->getEulerRotation().m_z);
+                        + "   Y: " + std::to_string((int)transform->getEulerRotation().m_y)
+                        + "   Z: " + std::to_string((int)transform->getEulerRotation().m_z);
 
                     std::string scale = "X: " + std::to_string((int)transform->getScale().m_x)
-                        + "   Y:" + std::to_string((int)transform->getScale().m_y)
-                        + "   Z:" + std::to_string((int)transform->getScale().m_z);
+                        + "   Y: " + std::to_string((int)transform->getScale().m_y)
+                        + "   Z: " + std::to_string((int)transform->getScale().m_z);
 
                     ImGui::Text("Position:");
                     ImGui::BulletText(pos.c_str());
@@ -188,16 +188,6 @@ void InspectorTool::renderBody()
     //ImGui::GetBackgroundDrawList()->AddLine(ImVec2(-pos.m_x, -pos.m_y), ImVec2(v.m_x / 2, v.m_y / 2), ImGui::GetColorU32(ImVec4(1, 1, 1, 1)), 2);
 
     //std::cout << pos.m_x << " " << pos.m_y << "\n";
-}
-
-void InspectorTool::setCurrentEntity(Entity* entity)
-{
-	m_current_entity = entity;
-}
-
-Entity* InspectorTool::getCurrentEntity()
-{
-	return m_current_entity;
 }
 
 void InspectorTool::setCurrentCam(CCamera* cam)
